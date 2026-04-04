@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1a;--card:#252523;--bdr:rgba(255,255,255,0.1);--text:#e8e6dc;--muted:#9c9a92;
+  --teal:#5dcaa5;--teal-l:#04342c;--teal-t:#0f6e56;
+  --blue:#85b7eb;--blue-l:#042c53;--blue-t:#185fa5;
+  --amber:#ef9f27;--amber-l:#412402;--amber-t:#c47d10;
+  --red:#f09595;--red-l:#501313;--red-t:#a32d2d;
+  --green:#97c459;--green-l:#173404;--green-t:#5a9e24;
+  --purple:#afa9ec;--purple-l:#26215c;
+  --r:8px;--rl:12px;
+}
+@media print{
+  nav,#tab-upload,#tab-period,#tab-gstr1,#tab-gstr3b,#tab-compare,.btn,.acts,.nav-r,.pb,.cb,.thr{display:none!important}
+  body{font-size:11px}
+  main{padding:8px}
+  .card{border:0.5px solid #ccc;break-inside:avoid}
+  .tw{overflow:visible}
+  table{font-size:10px}
+}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;font-size:14px;min-height:100vh}
+nav{background:var(--card);border-bottom:0.5px solid var(--bdr);padding:0 16px;display:flex;align-items:center;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.brand{font-size:14px;font-weight:700;color:var(--teal);padding:12px 0;margin-right:20px;white-space:nowrap}
+.brand span{color:var(--muted);font-weight:400;font-size:11px}
+.tabs{display:flex;flex:1}
+.tab{padding:12px 13px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.nav-r{display:flex;align-items:center;gap:8px;padding:8px 0;margin-left:auto}
+.thr{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.thr input{width:75px;padding:3px 7px;border:0.5px solid var(--bdr);border-radius:6px;background:var(--bg);color:var(--text);font-size:11px}
+main{padding:16px}
+.uz{border:1.5px dashed var(--bdr);border-radius:var(--rl);padding:40px 32px;text-align:center;cursor:pointer;transition:all .2s;max-width:540px;width:100%;margin:0 auto}
+.uz:hover,.uz.drag{border-color:var(--teal);background:var(--teal-l)}
+.fl{max-width:540px;margin:12px auto 0;display:flex;flex-direction:column;gap:5px}
+.fi{display:flex;align-items:center;gap:8px;padding:7px 11px;background:var(--card);border:0.5px solid var(--bdr);border-radius:var(--r)}
+.fd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fd.gstr1{background:var(--teal)}.fd.gstr3b{background:var(--blue)}
+.fn{flex:1;font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fm{font-size:10px;color:var(--muted);white-space:nowrap}
+.card{background:var(--card);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:14px 16px}
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--bg);border-radius:var(--r);padding:11px 13px}
+.kl{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.kv{font-size:17px;font-weight:700}
+.ks{font-size:10px;color:var(--muted);margin-top:1px}
+.sec{display:flex;align-items:center;gap:8px;margin:14px 0 8px;flex-wrap:wrap}
+.st{font-size:13px;font-weight:600}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600}
+.bt{background:var(--teal-l);color:var(--teal)}.bb{background:var(--blue-l);color:var(--blue)}
+.br{background:var(--red-l);color:var(--red)}.bg{background:var(--green-l);color:var(--green)}
+.ba{background:var(--amber-l);color:var(--amber)}.bm{background:var(--bg);color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 9px;border-bottom:0.5px solid var(--bdr);font-weight:500;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+td{padding:7px 9px;border-bottom:0.5px solid var(--bdr)}
+tr:last-child td{border-bottom:none}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tr td{font-weight:600;background:var(--bg)}
+.mr td{background:var(--red-l)}.or td{background:var(--green-l)}
+.tw{overflow-x:auto}
+.btn{padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--bdr);background:var(--card);color:var(--text);transition:all .15s}
+.btn:hover{background:var(--bg)}.btnp{background:var(--teal);color:#fff;border-color:var(--teal)}.btnp:hover{opacity:.88}
+.bsm{padding:4px 9px;font-size:11px}.bd{background:var(--red-l);color:var(--red);border-color:var(--red-t)}
+.cb{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--bdr);background:var(--card);color:var(--muted);transition:all .15s}
+.chip:hover{border-color:var(--teal)}.chip.active{background:var(--teal-l);color:var(--teal);border-color:var(--teal-t)}
+.pb{display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.pp{padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:0.5px solid var(--bdr);background:var(--card);color:var(--muted);transition:all .15s}
+.pp.active{background:var(--blue-l);color:var(--blue);border-color:var(--blue-t)}
+.t3{display:flex;gap:8px;margin:8px 0}
+.tb{flex:1;border-radius:var(--r);padding:9px 11px;text-align:center}
+.tl{font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.tv{font-size:13px;font-weight:700}
+.ib{background:var(--blue-l);color:var(--blue)}.cb2{background:var(--teal-l);color:var(--teal)}.sb{background:var(--amber-l);color:var(--amber)}
+.nt{padding:9px 13px;border-radius:var(--r);font-size:12px;margin-bottom:10px;display:flex;gap:7px}
+.ni{background:var(--blue-l);color:var(--blue)}.nw{background:var(--amber-l);color:var(--amber)}.nok{background:var(--green-l);color:var(--green)}
+.sep{height:1px;background:var(--bdr);margin:14px 0}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.acts{display:flex;gap:8px;margin:12px auto 0;max-width:540px;flex-wrap:wrap}
+.cw{position:relative;height:200px;margin-top:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:680px){.g2,.g3{grid-template-columns:1fr}}
+.dp{color:var(--red);font-weight:600}.dn{color:var(--green);font-weight:600}
+.log{font-size:10px;color:var(--muted);font-family:monospace;background:var(--bg);border-radius:var(--r);padding:8px 10px;margin-top:8px;white-space:pre-wrap;max-height:140px;overflow-y:auto}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand">GST Dashboard <span>| v9 — Portal PDF Parser</span></div>
+  <div class="tabs">
+    <div class="tab active" id="tab-upload" onclick="go('upload')">Upload</div>
+    <div class="tab" id="tab-gstr1" onclick="go('gstr1')">GSTR-1</div>
+    <div class="tab" id="tab-gstr3b" onclick="go('gstr3b')">GSTR-3B</div>
+    <div class="tab" id="tab-compare" onclick="go('compare')">Comparison</div>
+    <div class="tab" id="tab-period" onclick="go('period')">Period Detail</div>
+    <div class="tab" id="tab-annual" onclick="go('annual')">Annual Summary</div>
+  </div>
+  <div class="nav-r">
+    <div class="thr"><span>Mismatch ≥ ₹</span><input type="number" id="threshold" value="100" min="0" step="100"></div>
+    <button onclick="printAnnual()" title="Save Annual Summary as PDF" style="background:var(--card);border:0.5px solid var(--bdr);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap">🖨 PDF</button>
+  </div>
+</nav>
+<main id="main"></main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const S={files:[],clients:{},activeClient:null,activePeriod:null,activeFY:null,showB2CL:false,tab:'upload',charts:{}};
+const fR=v=>isNaN(+v)?'—':'₹'+Number(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fN=v=>isNaN(+v)?'0.00':Number(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const n=v=>isNaN(+v)?0:+v;
+// Convert stored period "MM-YYYY" → display "Jan 2025"
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatPeriod(p){
+  if(!p) return '';
+  const m=p.match(/^(\d{2})-(\d{4})$/);
+  if(m) return MONTHS[parseInt(m[1],10)-1]+' '+m[2];
+  return p;
+}
+// FY-aware period sort key: Apr→Dec of year N come before Jan→Mar of year N+1
+function pSort(a,b){
+  function key(p){
+    const m=p.match(/^(\d{2})-(\d{4})$/);
+    if(!m) return 0;
+    const mon=parseInt(m[1],10),yr=parseInt(m[2],10);
+    const fyStart=mon>=4?yr:yr-1;
+    const mo=mon>=4?mon-4:mon+8; // Apr=0…Dec=8, Jan=9…Mar=11
+    return fyStart*100+mo;
+  }
+  return key(a)-key(b);
+}
+function periodToFY(p){
+  const m=p.match(/^(\d{2})-(\d{4})$/);
+  if(!m) return null;
+  const mon=parseInt(m[1],10), yr=parseInt(m[2],10);
+  const fyStart=mon>=4?yr:yr-1;
+  return fyStart+'-'+(String(fyStart+1).slice(2));
+}
+// Get all FYs present in a client's records
+function clientFYs(cl){
+  const fys=new Set();
+  [...cl.gstr1,...cl.gstr3b].forEach(r=>{ const fy=periodToFY(r.period); if(fy) fys.add(fy); });
+  return [...fys].sort();
+}
+
+// ── LOCALSTORAGE SAVE / RESTORE ─────────────────────────────────────────────
+// Version stamp: bump this when parser changes produce incompatible data shapes.
+// Old saves under a different key are simply ignored — user re-uploads.
+const LS_KEY='gstvision_clients_v2';
+function saveClients(){
+  try{
+    // Store clients data (excluding non-serialisable chart refs)
+    const save={};
+    Object.entries(S.clients).forEach(([gstn,cl])=>{
+      save[gstn]={gstn:cl.gstn,name:cl.name,
+        gstr1:cl.gstr1.map(r=>({name:r.name,type:r.type,gstn:r.gstn,period:r.period,data:r.data})),
+        gstr3b:cl.gstr3b.map(r=>({name:r.name,type:r.type,gstn:r.gstn,period:r.period,data:r.data}))
+      };
+    });
+    localStorage.setItem(LS_KEY,JSON.stringify(save));
+    return Object.keys(save).length;
+  }catch(e){console.warn('Save failed:',e);return 0;}
+}
+function loadClients(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return 0;
+    const save=JSON.parse(raw);
+    Object.entries(save).forEach(([gstn,cl])=>{
+      if(!S.clients[gstn]) S.clients[gstn]={gstn:cl.gstn,name:cl.name,gstr1:[],gstr3b:[]};
+      cl.gstr1.forEach(r=>{ if(!S.clients[gstn].gstr1.find(x=>x.period===r.period)) S.clients[gstn].gstr1.push(r); });
+      cl.gstr3b.forEach(r=>{ if(!S.clients[gstn].gstr3b.find(x=>x.period===r.period)) S.clients[gstn].gstr3b.push(r); });
+      // Rebuild files list for display
+      [...cl.gstr1,...cl.gstr3b].forEach(r=>{
+        if(!S.files.find(f=>f.gstn===r.gstn&&f.period===r.period&&f.type===r.type))
+          S.files.push({name:r.name||r.gstn+'_'+r.type+'_'+r.period+'.pdf',type:r.type,gstn:r.gstn,period:r.period,data:r.data});
+      });
+    });
+    if(!S.activeClient&&Object.keys(S.clients).length) S.activeClient=Object.keys(S.clients)[0];
+    return Object.keys(save).length;
+  }catch(e){console.warn('Load failed:',e);return 0;}
+}
+function clearSaved(){
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+}
+
+
+
+// ── PRINT / PDF ───────────────────────────────────────────────────────────────
+function printAnnual(){
+  if(S.tab!=='annual'){go('annual');setTimeout(()=>window.print(),600);}
+  else window.print();
+}
+
+
+// KEY FIX: sort items by (y, x) position before joining — mirrors pdfplumber
+// extract_words behaviour, which is what our verified patterns expect
+async function extractPDFText(file){
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  let allPages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const vp=page.getViewport({scale:1});
+    const content=await page.getTextContent();
+    // Build items with position
+    const items=content.items
+      .filter(t=>t.str&&t.str.trim())
+      .map(t=>{
+        // PDF coords: origin bottom-left, y increases up → convert to top-down
+        const tx=t.transform[4];
+        const ty=vp.height-t.transform[5];
+        return {str:t.str.trim(),x:tx,y:ty};
+      });
+    // Sort by y (row), then x (column) — same as extract_words
+    items.sort((a,b)=>Math.round(a.y/3)-Math.round(b.y/3)||a.x-b.x);
+    allPages.push(items.map(t=>t.str).join(' '));
+  }
+  return allPages.join('\n');
+}
+
+// ── GSTR-3B PARSER ─────────────────────────────────────────────────────────
+// All patterns verified against real PDF.js word-join text
+function parse3B(text){
+  const rx=(p,f=1)=>{const m=text.match(new RegExp(p,'i'));return m?+(m[f].replace(/,/g,'')):0};
+  const rx4=(p)=>{
+    const m=text.match(new RegExp(p+'\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)','i'));
+    return m?{igst:+(m[1].replace(/,/g,'')),cgst:+(m[2].replace(/,/g,'')),sgst:+(m[3].replace(/,/g,'')),cess:+(m[4].replace(/,/g,''))}:{igst:0,cgst:0,sgst:0,cess:0};
+  };
+
+  const gstnM=text.match(/GSTIN of the supplier\s+(\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z0-9])/);
+  const gstn=gstnM?gstnM[1]:'UNKNOWN';
+  const nameM=text.match(/Legal name of the registered person\s+([\w\s]+?)\s+2\(b\)/i);
+  const name=nameM?nameM[1].trim():'Unknown';
+  const monM=text.match(/Period\s+(January|February|March|April|May|June|July|August|September|October|November|December)/i);
+  const fyM=text.match(/Year\s+(\d{4}-\d{2})/i);
+  const MM={january:'01',february:'02',march:'03',april:'04',may:'05',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+  const mon=monM?MM[monM[1].toLowerCase()]:'03';
+  const fy=fyM?fyM[1]:'2024-25';
+  // FY 2024-25: Apr 2024 – Mar 2025. Months 04-12 → first year; 01-03 → second year
+  const fyStart=fy.split('-')[0];           // "2024"
+  const fyEnd='20'+fy.split('-')[1];        // "2025"
+  const yr=parseInt(mon,10)>=4?fyStart:fyEnd;
+  const period=mon+'-'+yr;
+
+  // ─ Table 3.1 ─
+  // Row (a): numbers come BEFORE "exempted)" — verified from word positions
+  const ra_m=text.match(/\(a\) Outward taxable supplies \(other than zero rated, nil rated and\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const ra=ra_m?{taxable:+(ra_m[1].replace(/,/g,'')),igst:+(ra_m[2].replace(/,/g,'')),cgst:+(ra_m[3].replace(/,/g,'')),sgst:+(ra_m[4].replace(/,/g,'')),cess:+(ra_m[5].replace(/,/g,''))}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
+
+  // Row (b)
+  const rb_m=text.match(/\(b\) Outward taxable supplies \(zero rated\)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const rb=rb_m?{taxable:+(rb_m[1].replace(/,/g,'')),igst:+(rb_m[2].replace(/,/g,''))}:{taxable:0,igst:0};
+
+  // Row (c) — only taxable value, no tax
+  const rc_m=text.match(/\(c\s*\)\s*Other outward supplies \(nil rated, exempted\)\s+([\d,]+\.\d+)/i);
+  const rc={taxable:rc_m?+(rc_m[1].replace(/,/g,'')):0};
+
+  // Row (d) — L artifact before taxable
+  const rd_m=text.match(/\(d\) Inward supplies \(liable to reverse charge\)\s+L?([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const rd=rd_m?{taxable:+(rd_m[1].replace(/,/g,'')),igst:+(rd_m[2].replace(/,/g,'')),cgst:+(rd_m[3].replace(/,/g,'')),sgst:+(rd_m[4].replace(/,/g,'')),cess:+(rd_m[5].replace(/,/g,''))}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
+
+  // ─ Table 3.2 ─
+  const inter_m=text.match(/Supplies made to Unregistered Persons\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const inter=inter_m?{taxable:+(inter_m[1].replace(/,/g,'')),igst:+(inter_m[2].replace(/,/g,''))}:{taxable:0,igst:0};
+  const comp_m=text.match(/Composition Taxable\s*Persons?\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const comp=comp_m?{taxable:+(comp_m[1].replace(/,/g,'')),igst:+(comp_m[2].replace(/,/g,''))}:{taxable:0,igst:0};
+
+  // ─ Table 4 ITC ─
+  const itc_imp_goods=rx4('\\(1\\)\\s*Import\\s+of\\s+goods');
+  const itc_imp_services=rx4('\\(2\\)\\s*Import\\s+of\\s+services');
+  const itc_rcm=rx4('\\(3\\) Inward supplies liable to reverse charge \\(other than 1 & 2 above\\)');
+  const itc_isd=rx4('\\(4\\)\\s*Inward\\s+supplies\\s+from\\s+ISD');
+  const itc_all=rx4('\\(5\\) All other ITC');
+  const itc_rv1=rx4('rules 38,42 & 43 of CGST Rules and section 17\\(5\\)');
+  const itc_rv2=rx4('\\(2\\) Others');
+
+  // 4D(2) Ineligible ITC — declared FIRST because 4D(1) Strategy 3 subtracts it
+  // Portal prints "0.0 0" artifact; grab only 60 chars after label end to avoid page bleed
+  const r4d2_label=text.match(/\(2\)\s*Ineligible\s+ITC\s+under\s+section\s+16\(4\)[^\d]*/i);
+  const itc_inelig=(()=>{
+    if(!r4d2_label) return {igst:0,cgst:0,sgst:0,cess:0};
+    const chunk=text.slice(r4d2_label.index+r4d2_label[0].length,r4d2_label.index+r4d2_label[0].length+60);
+    const nums=[...chunk.matchAll(/[\d,]+\.\d+/g)].map(m=>+(m[0].replace(/,/g,'')));
+    return {igst:nums[0]||0,cgst:nums[1]||0,sgst:nums[2]||0,cess:0};
+  })();
+
+  // 4D(1) ITC reclaimed — three strategies, most specific to most robust fallback
+  // Strategy 1: "(1) ITC reclaimed ... in earlier tax [period] NUMS"
+  // Strategy 2: same label without (1) prefix
+  // Strategy 3: (D) Other Details row = (1) + (2); compute (1) = (D) - (2)
+  //   The portal always prints "(D) Other Details" with the total, making this reliable
+  const itc_recl_m=
+    text.match(/\(1\)\s*ITC reclaimed which was reversed under Table 4\(B\)\(2\) in earlier tax\s*(?:period\s*)?([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i)
+    ||text.match(/ITC reclaimed which was reversed under Table 4\(B\)\(2\) in earlier tax\s*(?:period\s*)?([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  let itc_recl;
+  if(itc_recl_m){
+    itc_recl={igst:+(itc_recl_m[1].replace(/,/g,'')),cgst:+(itc_recl_m[2].replace(/,/g,'')),sgst:+(itc_recl_m[3].replace(/,/g,'')),cess:+(itc_recl_m[4].replace(/,/g,''))};
+  } else {
+    // Strategy 3: (D) Other Details total minus (2) ineligible gives (1) reclaimed
+    const itc_d_m=text.match(/\(D\)\s*Other\s*Details\s*([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+    if(itc_d_m){
+      const dIgst=+(itc_d_m[1].replace(/,/g,'')),dCgst=+(itc_d_m[2].replace(/,/g,'')),dSgst=+(itc_d_m[3].replace(/,/g,''));
+      itc_recl={igst:Math.max(0,dIgst-itc_inelig.igst),cgst:Math.max(0,dCgst-itc_inelig.cgst),sgst:Math.max(0,dSgst-itc_inelig.sgst),cess:0};
+    } else {
+      itc_recl={igst:0,cgst:0,sgst:0,cess:0};
+    }
+  }
+  // Net ITC (4C) — always COMPUTED from sub-rows (portal PDF sometimes shows ₹0 for 4C line)
+  // Formula: Total ITC Available (4A) minus ITC Reversed (4B)
+  const netItcIgst=(itc_imp_goods.igst+itc_imp_services.igst+itc_rcm.igst+itc_isd.igst+itc_all.igst)-(itc_rv1.igst+itc_rv2.igst);
+  const netItcCgst=(itc_imp_goods.cgst+itc_imp_services.cgst+itc_rcm.cgst+itc_isd.cgst+itc_all.cgst)-(itc_rv1.cgst+itc_rv2.cgst);
+  const netItcSgst=(itc_imp_goods.sgst+itc_imp_services.sgst+itc_rcm.sgst+itc_isd.sgst+itc_all.sgst)-(itc_rv1.sgst+itc_rv2.sgst);
+  // Synthesise itc_net object so existing references to itc.net.igst/cgst/sgst work everywhere
+  const itc_net={igst:netItcIgst,cgst:netItcCgst,sgst:netItcSgst,cess:0};
+
+  // ─ Breakup line ─
+  const bkM=text.match(/March\s+20\d\d\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i)
+           ||text.match(/\w+\s+20\d\d\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const breakup=bkM?{igst:+(bkM[1].replace(/,/g,'')),cgst:+(bkM[2].replace(/,/g,'')),sgst:+(bkM[3].replace(/,/g,''))}:null;
+
+  // ─ Cash paid IGST (Table 6.1) — look for 1372775 pattern ─
+  const cashM=text.match(/1372775\.?\d*/);
+  const cash_igst=cashM?parseFloat(cashM[0]):0;
+
+  const log=[
+    `GSTN: ${gstn} | Period: ${period} | FY: ${fy}`,
+    `3.1(a): taxable=${ra.taxable} IGST=${ra.igst} CGST=${ra.cgst} SGST=${ra.sgst}`,
+    `3.1(b): taxable=${rb.taxable} IGST=${rb.igst}`,
+    `3.1(c): taxable=${rc.taxable}`,
+    `3.1(d): taxable=${rd.taxable} IGST=${rd.igst}`,
+    `3.2: unregd taxable=${inter.taxable} IGST=${inter.igst}`,
+    `4A(1) Import Goods: IGST=${itc_imp_goods.igst} CGST=${itc_imp_goods.cgst} SGST=${itc_imp_goods.sgst}`,
+    `4A(2) Import Services: IGST=${itc_imp_services.igst}`,
+    `4A(3) RCM: IGST=${itc_rcm.igst}`,
+    `4A(4) ISD: IGST=${itc_isd.igst}`,
+    `4A(5) All: IGST=${itc_all.igst} CGST=${itc_all.cgst} SGST=${itc_all.sgst}`,
+    `4B(1): IGST=${itc_rv1.igst} CGST=${itc_rv1.cgst} SGST=${itc_rv1.sgst}`,
+    `4B(2): IGST=${itc_rv2.igst} CGST=${itc_rv2.cgst} SGST=${itc_rv2.sgst}`,
+    `4C Net ITC (COMPUTED): IGST=${netItcIgst.toFixed(2)} CGST=${netItcCgst.toFixed(2)} SGST=${netItcSgst.toFixed(2)}`,
+    `4D(1) Recl: IGST=${itc_recl.igst} CGST=${itc_recl.cgst} SGST=${itc_recl.sgst}`,
+    `4D(2) Inelig: IGST=${itc_inelig.igst} CGST=${itc_inelig.cgst} SGST=${itc_inelig.sgst}`,
+    `Net ITC (computed): IGST=${netItcIgst} CGST=${netItcCgst} SGST=${netItcSgst}`,
+    `Breakup: ${breakup?JSON.stringify(breakup):'not found'}`,
+    `Cash IGST: ${cash_igst}`,
+  ].join('\n');
+
+  return {gstn,period,fy,name,type:'gstr3b',
+    row_a:ra,row_b:rb,row_c:rc,row_d:rd,
+    inter,comp,
+    itc:{
+      imp_goods:itc_imp_goods,imp_services:itc_imp_services,
+      rcm:itc_rcm,isd:itc_isd,all_other:itc_all,
+      rev1:itc_rv1,rev2:itc_rv2,net:itc_net,
+      reclaimed:itc_recl,ineligible:itc_inelig,
+      netIgst:netItcIgst,netCgst:netItcCgst,netSgst:netItcSgst
+    },
+    breakup,cash_igst,_log:log};
+}
+
+// ── GSTR-1 PARSER ───────────────────────────────────────────────────────────
+function parse1(text){
+  const gstnM=text.match(/1\s+GSTIN\s+(\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z0-9])/)||text.match(/GSTIN\s+(\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z0-9])/);
+  const gstn=gstnM?gstnM[1]:'UNKNOWN';
+  const nameM=text.match(/Legal name of the registered person\s+([\w\s]+?)\s*(?:\(b\)|Trade name)/i);
+  const name=nameM?nameM[1].trim():'Unknown';
+  // Portal GSTR-1 prints "Tax period March" and "Financial year 2024-25" on separate lines
+  const monM=text.match(/Tax\s+period\s+(January|February|March|April|May|June|July|August|September|October|November|December)/i)
+           ||text.match(/Period\s+(January|February|March|April|May|June|July|August|September|October|November|December)/i);
+  const fyM=text.match(/Financial\s+year\s+(\d{4}-\d{2})/i)
+          ||text.match(/Year\s+(\d{4}-\d{2})/i);
+  const MM={january:'01',february:'02',march:'03',april:'04',may:'05',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+  const mon=monM?MM[monM[1].toLowerCase()]:'03';
+  const fy=fyM?fyM[1]:'2024-25';
+  // FY 2024-25: Apr 2024 – Mar 2025. Months 04-12 → first year; 01-03 → second year
+  const fyStart=fy.split('-')[0];
+  const fyEnd='20'+fy.split('-')[1];
+  const yr=parseInt(mon,10)>=4?fyStart:fyEnd;
+  const period=mon+'-'+yr;
+
+  // B2B 4A — "Total 17 Invoice 1,12,11,124.00 18,89,129.00 64,438.00 64,438.00 0.00"
+  const b2b_m=text.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const b2b=b2b_m?{invoices:+b2b_m[1],value:+(b2b_m[2].replace(/,/g,'')),igst:+(b2b_m[3].replace(/,/g,'')),cgst:+(b2b_m[4].replace(/,/g,'')),sgst:+(b2b_m[5].replace(/,/g,''))}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
+
+  // B2CL 5 — "Total 17 Invoice 57,65,736.00 10,37,833.00 0.00"
+  const b2cl_m=text.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+0\.00\s*(?:\n|6A)/i)
+              ||text.match(/inter[\s\S]{0,400}?Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  // More specific: look after B2B for next "Total N Invoice"
+  const allInvMatches=[...text.matchAll(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/gi)];
+  const b2cl=allInvMatches[1]?{invoices:+allInvMatches[1][1],value:+(allInvMatches[1][2].replace(/,/g,'')),igst:+(allInvMatches[1][3].replace(/,/g,'')),cgst:0,sgst:0}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
+
+  // B2CS 7 — "Total 6 Net Value 11,24,120.00 79,874.00 61,232.67 61,232.67 0.00"
+  const b2cs_m=text.match(/Total\s+(\d+)\s+Net Value\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const b2cs=b2cs_m?{invoices:+b2cs_m[1],value:+(b2cs_m[2].replace(/,/g,'')),igst:+(b2cs_m[3].replace(/,/g,'')),cgst:+(b2cs_m[4].replace(/,/g,'')),sgst:+(b2cs_m[5].replace(/,/g,''))}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
+
+  // Nil/Exempt 8
+  const nilM=text.match(/8[^9]{0,200}?Total\s+([\d,]+\.\d+)/i);
+  const exM=text.match(/Exempted\s+([\d,]+\.\d+)/i);
+  const nilExempt={total:nilM?+(nilM[1].replace(/,/g,'')):0,exempt:exM?+(exM[1].replace(/,/g,'')):0};
+
+  // CDNR — "Total - Net off debit/credit notes 3 Note -6,22,628.00 -48,926.00 -31,574.00 -31,574.00"
+  const cdnr_m=text.match(/Net off debit\/credit notes.*?(\d+)\s+Note\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  const cdnr=cdnr_m?{notes:+cdnr_m[1],value:+(cdnr_m[2].replace(/,/g,'')),igst:+(cdnr_m[3].replace(/,/g,'')),cgst:+(cdnr_m[4].replace(/,/g,'')),sgst:+(cdnr_m[5].replace(/,/g,''))}:{notes:0,value:0,igst:0,cgst:0,sgst:0};
+
+  // CDNUR — "Total - Net off... 10 Note -24,48,421.00 -4,40,716.00 0.00"
+  const cdnurSection=text.slice(text.indexOf('CDNUR'));
+  const cdnur_m=cdnurSection.match(/(\d+)\s+Note\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  const cdnur=cdnur_m?{notes:+cdnur_m[1],value:+(cdnur_m[2].replace(/,/g,'')),igst:+(cdnur_m[3].replace(/,/g,''))}:{notes:0,value:0,igst:0};
+
+  // HSN 12 total
+  const hsn_m=text.match(/12[\s\S]{0,200}?Total\s+\d+\s+NA\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const hsn=hsn_m?{value:+(hsn_m[1].replace(/,/g,'')),igst:+(hsn_m[2].replace(/,/g,'')),cgst:+(hsn_m[3].replace(/,/g,'')),sgst:+(hsn_m[4].replace(/,/g,''))}:null;
+
+  // Total Liability — authoritative
+  const totM=text.match(/Total Liability[^0-9]*([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const tl=totM?{value:+(totM[1].replace(/,/g,'')),igst:+(totM[2].replace(/,/g,'')),cgst:+(totM[3].replace(/,/g,'')),sgst:+(totM[4].replace(/,/g,''))}:null;
+
+  const igst=tl?tl.igst:(b2b.igst+b2cl.igst+b2cs.igst);
+  const cgst=tl?tl.cgst:(b2b.cgst+b2cs.cgst);
+  const sgst=tl?tl.sgst:(b2b.sgst+b2cs.sgst);
+  const taxable=tl?tl.value:(b2b.value+b2cl.value+b2cs.value);
+
+  return {gstn,period,fy,name,type:'gstr1',
+    summary:{taxable_value:taxable,igst,cgst,sgst,total_tax:igst+cgst+sgst,
+      total_invoices:b2b.invoices+b2cl.invoices+b2cs.invoices},
+    b2b,b2cl,b2cs,nilExempt,cdnr,cdnur,hsn_total:hsn};
+}
+
+// ── DETECT ──────────────────────────────────────────────────────────────────
+function detectType(fname,text){
+  const f=fname.toLowerCase();
+  if(/3b|3-b/.test(f)||/Form GSTR-3B/i.test(text)) return 'gstr3b';
+  if(/gstr1|gstr-1/.test(f)||/FORM GSTR-1/i.test(text)) return 'gstr1';
+  return null;
+}
+
+// ── INGEST ───────────────────────────────────────────────────────────────────
+async function ingestFiles(files){
+  const mc=document.getElementById('main');
+  mc.insertAdjacentHTML('afterbegin','<div id="pn" class="nt ni" style="max-width:540px;margin:0 auto 10px">⏳ Parsing PDF(s)…</div>');
+  for(const file of Array.from(files)){
+    let text='';
+    const ext=file.name.split('.').pop().toLowerCase();
+    if(ext==='pdf') text=await extractPDFText(file);
+    else text=await file.text();
+    const rtype=detectType(file.name,text);
+    if(!rtype){alert('Cannot detect return type: '+file.name);continue;}
+    let parsed;
+    try{parsed=rtype==='gstr1'?parse1(text):parse3B(text);}
+    catch(e){alert('Parse error in '+file.name+': '+e.message);continue;}
+    const entry={name:file.name,type:rtype,gstn:parsed.gstn,period:parsed.period,data:parsed};
+    S.files.push(entry);
+    if(!S.clients[parsed.gstn]) S.clients[parsed.gstn]={gstn:parsed.gstn,name:parsed.name,gstr1:[],gstr3b:[]};
+    const ex=S.clients[parsed.gstn][rtype].find(r=>r.period===parsed.period);
+    if(!ex) S.clients[parsed.gstn][rtype].push(entry); else Object.assign(ex,entry);
+    if(!S.activeClient) S.activeClient=parsed.gstn;
+  }
+  document.getElementById('pn')?.remove();
+  renderUpload();
+}
+
+// ── COMMON ────────────────────────────────────────────────────────────────────
+function cbar(){
+  const cs=Object.values(S.clients);if(!cs.length) return '';
+  if(!S.activeClient) S.activeClient=cs[0].gstn;
+  return `<div class="cb">${cs.map(c=>`<div class="chip${c.gstn===S.activeClient?' active':''}" onclick="selC('${c.gstn}')">${c.gstn} <span style="color:var(--muted);font-size:10px;margin-left:3px">${c.name.split(' ').slice(0,2).join(' ')}</span></div>`).join('')}</div>`;
+}
+function selC(g){S.activeClient=g;S.activePeriod=null;S.activeFY=null;dc();go(S.tab)}
+function gcd(t){return S.activeClient&&S.clients[S.activeClient]?S.clients[S.activeClient][t]||[]:[]}
+function pbar(recs){
+  const ps=[...new Set(recs.map(r=>r.period))].sort(pSort);if(!ps.length) return '';
+  if(!S.activePeriod||!ps.includes(S.activePeriod)) S.activePeriod=ps[ps.length-1];
+  return `<div class="pb"><span style="font-size:10px;color:var(--muted);margin-right:4px">Period:</span>${ps.map(p=>`<div class="pp${p===S.activePeriod?' active':''}" onclick="selP('${p}')">${formatPeriod(p)}</div>`).join('')}</div>`;
+}
+function selP(p){S.activePeriod=p;dc();go(S.tab)}
+function dc(){Object.values(S.charts).forEach(c=>{try{c.destroy()}catch(e){}});S.charts={}}
+function go(t){
+  S.tab=t;document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');dc();
+  if(t==='upload') renderUpload();
+  else if(t==='gstr1') renderG1();
+  else if(t==='gstr3b') renderG3B();
+  else if(t==='compare') renderCmp();
+  else if(t==='period') renderPeriod();
+  else if(t==='annual') renderAnnual();
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────────────────────
+function renderUpload(){
+  const mc=document.getElementById('main');
+  const list=S.files.length?`<div class="fl">${S.files.map((f,i)=>`
+    <div class="fi"><div class="fd ${f.type}"></div><div class="fn">${f.name}</div>
+    <div class="fm">${f.gstn} · ${f.period}</div>
+    <span class="badge ${f.type==='gstr1'?'bt':'bb'}">${f.type==='gstr1'?'GSTR-1':'GSTR-3B'}</span>
+    <button class="btn bsm bd" onclick="rmFile(${i})">✕</button></div>`).join('')}</div>`:'';
+  mc.innerHTML=`
+    <div style="max-width:540px;margin:20px auto 0">
+      <div class="nt ni">ℹ️ Upload GSTR-1 and GSTR-3B PDFs downloaded from GST portal. GSTN, period and all table values extracted automatically.</div>
+    </div>
+    <div class="uz" id="dz" onclick="document.getElementById('fi').click()" ondrop="hDrop(event)" ondragover="hDO(event)" ondragleave="hDL()">
+      <div style="font-size:32px;margin-bottom:10px">📂</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:5px">Drop portal PDFs here or click to browse</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7">PDF (GST Portal, text-selectable) · JSON · Excel/CSV<br>Multiple clients &amp; periods supported — identified by GSTN</div>
+    </div>
+    <input type="file" id="fi" multiple accept=".pdf,.json,.xlsx,.xls,.csv,.txt" onchange="handleFS(event)" style="display:none">
+    ${list}
+    ${S.files.length?`<div class="acts">
+      <button class="btn btnp" onclick="go('gstr1')">GSTR-1 →</button>
+      <button class="btn btnp" onclick="go('gstr3b')">GSTR-3B →</button>
+      <button class="btn btnp" onclick="go('compare')">Comparison →</button>
+      <button class="btn btnp" onclick="go('annual')">Annual →</button>
+      <button class="btn" style="background:var(--green-l,#eaf3de);color:var(--green,#3b6d11);border-color:var(--green-t,#97c459)" onclick="doSave()">💾 Save session</button>
+      <button class="btn" onclick="clearAll()">Clear all</button>
+    </div>`:''}
+    ${renderSavedList()}`;
+}
+// Save current session and show toast
+function doSave(){
+  const n=saveClients();
+  renderUpload();
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green,#3b6d11);color:#fff;font-size:12px;font-weight:600;padding:8px 20px;border-radius:20px;z-index:999;opacity:1;transition:opacity .4s';
+  toast.textContent=`✓ ${n} client(s) saved to browser storage`;
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.style.opacity='0';setTimeout(()=>toast.remove(),400);},2500);
+}
+// Render saved clients list on upload screen
+function renderSavedList(){
+  let saved={};
+  try{const r=localStorage.getItem(LS_KEY);if(r) saved=JSON.parse(r);}catch(e){}
+  const keys=Object.keys(saved);
+  if(!keys.length) return '';
+  const rows=keys.map(gstn=>{
+    const cl=saved[gstn];
+    const nPeriods=cl.gstr1.length+cl.gstr3b.length;
+    const fys=[...new Set([...cl.gstr1,...cl.gstr3b].map(r=>periodToFY(r.period)).filter(Boolean))].sort().join(', ');
+    const isLoaded=!!S.clients[gstn];
+    return`<div class="fi" style="flex-wrap:wrap;gap:6px">
+      <div class="fn">${cl.name}<span style="color:var(--muted);font-size:10px;margin-left:6px">${gstn}</span></div>
+      <div class="fm">${nPeriods} returns · FY ${fys}</div>
+      <div style="display:flex;gap:5px;margin-left:auto">
+        ${isLoaded?'<span class="badge bg">Loaded</span>':
+          `<button class="btn bsm" onclick="loadOne('${gstn}')">Load</button>`}
+        <button class="btn bsm bd" onclick="deleteSaved('${gstn}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  return`<div style="max-width:540px;margin:14px auto 0">
+    <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+      <span>💾 Saved sessions (browser storage)</span>
+      <button class="btn bsm" onclick="loadAllSaved()">Load all</button>
+    </div>
+    <div class="fl" style="max-width:100%">${rows}</div>
+  </div>`;
+}
+function loadOne(gstn){
+  try{
+    const raw=localStorage.getItem(LS_KEY);if(!raw) return;
+    const save=JSON.parse(raw);
+    const cl=save[gstn];if(!cl) return;
+    if(!S.clients[gstn]) S.clients[gstn]={gstn:cl.gstn,name:cl.name,gstr1:[],gstr3b:[]};
+    cl.gstr1.forEach(r=>{if(!S.clients[gstn].gstr1.find(x=>x.period===r.period)){S.clients[gstn].gstr1.push(r);S.files.push({name:r.name||gstn+'_gstr1_'+r.period+'.pdf',type:'gstr1',gstn,period:r.period,data:r.data});}});
+    cl.gstr3b.forEach(r=>{if(!S.clients[gstn].gstr3b.find(x=>x.period===r.period)){S.clients[gstn].gstr3b.push(r);S.files.push({name:r.name||gstn+'_gstr3b_'+r.period+'.pdf',type:'gstr3b',gstn,period:r.period,data:r.data});}});
+    if(!S.activeClient) S.activeClient=gstn;
+    renderUpload();
+  }catch(e){console.warn('Load one failed:',e);}
+}
+function loadAllSaved(){
+  const n=loadClients();
+  renderUpload();
+}
+function deleteSaved(gstn){
+  try{
+    const raw=localStorage.getItem(LS_KEY);if(!raw) return;
+    const save=JSON.parse(raw);
+    delete save[gstn];
+    localStorage.setItem(LS_KEY,JSON.stringify(save));
+    renderUpload();
+  }catch(e){}
+}
+function hDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');ingestFiles(e.dataTransfer.files)}
+function hDO(e){e.preventDefault();document.getElementById('dz').classList.add('drag')}
+function hDL(){document.getElementById('dz').classList.remove('drag')}
+function handleFS(e){ingestFiles(e.target.files);e.target.value=''}
+function clearAll(){S.files=[];S.clients={};S.activeClient=null;S.activePeriod=null;S.activeFY=null;renderUpload()}
+function rmFile(i){
+  S.files.splice(i,1);S.clients={};S.activeClient=null;S.activePeriod=null;
+  S.files.forEach(p=>{
+    if(!S.clients[p.gstn]) S.clients[p.gstn]={gstn:p.gstn,name:p.data.name,gstr1:[],gstr3b:[]};
+    S.clients[p.gstn][p.type].push(p);
+  });
+  S.activeClient=Object.keys(S.clients)[0]||null;
+  renderUpload();
+}
+
+// ── GSTR-1 ────────────────────────────────────────────────────────────────────
+function renderG1(){
+  const mc=document.getElementById('main');
+  const recs=gcd('gstr1');
+  if(!recs.length){mc.innerHTML=cbar()+'<div class="empty">No GSTR-1 files uploaded. <a href="#" onclick="go(\'upload\')">Upload →</a></div>';return}
+  mc.innerHTML=cbar()+pbar(recs)+'<div id="g1b"></div>';
+  const pd=recs.find(r=>r.period===S.activePeriod)||recs[recs.length-1];
+  const d=pd.data,s=d.summary;
+  document.getElementById('g1b').innerHTML=`
+  <div class="sec"><div class="st">GSTR-1 — Outward Supply Summary</div>
+    <span class="badge bt">${formatPeriod(pd.period)}</span><span class="badge bm">${pd.gstn}</span><span class="badge bm">${d.fy}</span>
+  </div>
+  <div class="kg">
+    <div class="kpi"><div class="kl">Total Value (GSTR-1)</div><div class="kv" style="color:var(--teal)">${fR(s.taxable_value)}</div><div class="ks">${s.total_invoices} invoices</div></div>
+    <div class="kpi"><div class="kl">Total Output Tax</div><div class="kv" style="color:var(--blue)">${fR(s.total_tax)}</div></div>
+    <div class="kpi"><div class="kl">IGST</div><div class="kv" style="color:var(--blue)">${fR(s.igst)}</div></div>
+    <div class="kpi"><div class="kl">CGST</div><div class="kv" style="color:var(--teal)">${fR(s.cgst)}</div></div>
+    <div class="kpi"><div class="kl">SGST / UTGST</div><div class="kv" style="color:var(--amber)">${fR(s.sgst)}</div></div>
+    <div class="kpi"><div class="kl">Nil / Exempt (Table 8)</div><div class="kv" style="color:var(--muted)">${fR(d.nilExempt.total)}</div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Supply Category Breakup</div></div>
+  <div class="card" style="margin-bottom:12px"><div class="tw"><table>
+    <thead><tr><th>Category</th><th>Table</th><th class="num">Docs</th><th class="num">Value</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST/UTGST</th><th class="num">Total Tax</th></tr></thead>
+    <tbody>
+      <tr><td>B2B Regular</td><td>4A</td><td class="num">${d.b2b.invoices}</td><td class="num">${fR(d.b2b.value)}</td><td class="num">${fR(d.b2b.igst)}</td><td class="num">${fR(d.b2b.cgst)}</td><td class="num">${fR(d.b2b.sgst)}</td><td class="num">${fR(d.b2b.igst+d.b2b.cgst+d.b2b.sgst)}</td></tr>
+      <tr><td>B2CL (Inter-state &gt;₹1L)</td><td>5</td><td class="num">${d.b2cl.invoices}</td><td class="num">${fR(d.b2cl.value)}</td><td class="num">${fR(d.b2cl.igst)}</td><td class="num">—</td><td class="num">—</td><td class="num">${fR(d.b2cl.igst)}</td></tr>
+      <tr><td>B2CS (Others)</td><td>7</td><td class="num">${d.b2cs.invoices}</td><td class="num">${fR(d.b2cs.value)}</td><td class="num">${fR(d.b2cs.igst)}</td><td class="num">${fR(d.b2cs.cgst)}</td><td class="num">${fR(d.b2cs.sgst)}</td><td class="num">${fR(d.b2cs.igst+d.b2cs.cgst+d.b2cs.sgst)}</td></tr>
+      <tr><td>CDNR (Registered)</td><td>9B</td><td class="num">${d.cdnr.notes}</td><td class="num">${fR(d.cdnr.value)}</td><td class="num">${fR(d.cdnr.igst)}</td><td class="num">${fR(d.cdnr.cgst)}</td><td class="num">${fR(d.cdnr.sgst)}</td><td class="num">${fR(d.cdnr.igst+d.cdnr.cgst+d.cdnr.sgst)}</td></tr>
+      <tr><td>CDNUR (Unregistered)</td><td>9B</td><td class="num">${d.cdnur.notes}</td><td class="num">${fR(d.cdnur.value)}</td><td class="num">${fR(d.cdnur.igst)}</td><td class="num">—</td><td class="num">—</td><td class="num">${fR(d.cdnur.igst)}</td></tr>
+      <tr><td>Nil / Exempt</td><td>8</td><td class="num">—</td><td class="num">${fR(d.nilExempt.total)}</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr class="tr"><td colspan="3">Total Liability</td><td class="num">${fR(s.taxable_value)}</td><td class="num">${fR(s.igst)}</td><td class="num">${fR(s.cgst)}</td><td class="num">${fR(s.sgst)}</td><td class="num">${fR(s.total_tax)}</td></tr>
+    </tbody>
+  </table></div></div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Tax Component Breakup</div></div>
+  <div class="t3">
+    <div class="tb ib"><div class="tl">IGST</div><div class="tv">${fR(s.igst)}</div></div>
+    <div class="tb cb2"><div class="tl">CGST</div><div class="tv">${fR(s.cgst)}</div></div>
+    <div class="tb sb"><div class="tl">SGST / UTGST</div><div class="tv">${fR(s.sgst)}</div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Charts</div></div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Tax Mix — IGST / CGST / SGST</div><div class="cw" style="height:220px"><canvas id="c-g1-tax"></canvas></div></div>
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Supply Channel Mix</div><div class="cw" style="height:220px"><canvas id="c-g1-mix"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Total Value — All Periods</div><div class="cw" style="height:180px"><canvas id="c-g1-trend"></canvas></div></div>
+  <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">IGST / CGST / SGST Trend — All Periods</div><div class="cw" style="height:180px"><canvas id="c-g1-tax-trend"></canvas></div></div>`;
+  // Draw charts after DOM settles
+  setTimeout(()=>drawG1Charts(recs,pd),80);
+}
+function drawG1Charts(recs,pd){
+  const s=pd.data.summary,d=pd.data;
+  const allP=recs.slice().sort((a,b)=>pSort(a.period,b.period));
+  const labels=allP.map(r=>formatPeriod(r.period));
+  const co={ig:'#185fa5',cg:'#0f6e56',sg:'#7a4a08',b2b:'#185fa5',b2cs:'#0f6e56',b2cl:'#7a4a08',exp:'#534ab7'};
+  function mkChart(id,cfg){const c=document.getElementById(id);if(!c)return;S.charts[id]=new Chart(c,cfg);}
+  const tickCb=v=>'₹'+Number(v).toLocaleString('en-IN');
+  const gridC='rgba(128,128,128,0.08)';
+  const leg={labels:{font:{size:10},boxWidth:10,padding:8}};
+  // Tax mix donut
+  mkChart('c-g1-tax',{type:'doughnut',data:{labels:['IGST','CGST','SGST/UTGST'],datasets:[{data:[s.igst,s.cgst,s.sgst],backgroundColor:[co.ig+'cc',co.cg+'cc',co.sg+'cc'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg}}});
+  // Supply channel donut
+  mkChart('c-g1-mix',{type:'doughnut',data:{labels:['B2B','B2CS','B2CL','Exports','Nil/Exempt'],datasets:[{data:[d.b2b.value,d.b2cs.value,d.b2cl.value,0,d.nilExempt.total],backgroundColor:['#185fa5cc','#0f6e56cc','#7a4a08cc','#534ab7cc','#9c9a9266'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg}}});
+  // Taxable trend bar
+  mkChart('c-g1-trend',{type:'bar',data:{labels,datasets:[{label:'Total Value',data:allP.map(r=>r.data.summary.taxable_value),backgroundColor:'#185fa566',borderColor:'#185fa5',borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gridC}},y:{grid:{color:gridC},ticks:{callback:tickCb}}}}});
+  // Tax component stacked bar
+  mkChart('c-g1-tax-trend',{type:'bar',data:{labels,datasets:[{label:'IGST',data:allP.map(r=>r.data.summary.igst),backgroundColor:co.ig+'99',borderRadius:2},{label:'CGST',data:allP.map(r=>r.data.summary.cgst),backgroundColor:co.cg+'99',borderRadius:2},{label:'SGST',data:allP.map(r=>r.data.summary.sgst),backgroundColor:co.sg+'99',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{stacked:true,grid:{color:gridC}},y:{stacked:true,grid:{color:gridC},ticks:{callback:tickCb}}}}});
+}
+
+// ── GSTR-3B ───────────────────────────────────────────────────────────────────
+function renderG3B(){
+  const mc=document.getElementById('main');
+  const recs=gcd('gstr3b');
+  if(!recs.length){mc.innerHTML=cbar()+'<div class="empty">No GSTR-3B files uploaded. <a href="#" onclick="go(\'upload\')">Upload →</a></div>';return}
+  mc.innerHTML=cbar()+pbar(recs)+'<div id="g3b"></div>';
+  const pd=recs.find(r=>r.period===S.activePeriod)||recs[recs.length-1];
+  const d=pd.data,ra=d.row_a,rd=d.row_d,rc=d.row_c,itc=d.itc;
+  // Always use computed net ITC, not PDF-extracted (which can be ₹0)
+  const netIgst=itc.netIgst??itc.net?.igst??0;
+  const netCgst=itc.netCgst??itc.net?.cgst??0;
+  const netSgst=itc.netSgst??itc.net?.sgst??0;
+  const outTax=ra.igst+ra.cgst+ra.sgst;
+  const netITC=netIgst+netCgst+netSgst;
+
+  document.getElementById('g3b').innerHTML=`
+  <div class="sec"><div class="st">GSTR-3B — Liability &amp; ITC Summary</div>
+    <span class="badge bb">${formatPeriod(pd.period)}</span><span class="badge bm">${pd.gstn}</span><span class="badge bm">${d.fy}</span>
+  </div>
+  <div class="kg">
+    <div class="kpi"><div class="kl">Outward Total (3.1a+b+c)</div><div class="kv" style="color:var(--teal)">${fR(ra.taxable+d.row_b.taxable+rc.taxable)}</div><div class="ks">3.1a+3.1b+3.1c</div></div>
+    <div class="kpi"><div class="kl">Output Tax (3.1a)</div><div class="kv" style="color:var(--blue)">${fR(outTax)}</div></div>
+    <div class="kpi"><div class="kl">Net ITC (Table 4C)</div><div class="kv" style="color:var(--green)">${fR(netITC)}</div></div>
+    <div class="kpi"><div class="kl">RCM IGST (3.1d)</div><div class="kv" style="color:var(--purple)">${fR(rd.igst)}</div><div class="ks">Taxable: ${fR(rd.taxable)}</div></div>
+    <div class="kpi"><div class="kl">Nil / Exempt (3.1c)</div><div class="kv" style="color:var(--muted)">${fR(rc.taxable)}</div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Table 3.1 — Outward &amp; Inward Supplies</div></div>
+  <div class="card" style="margin-bottom:12px"><div class="tw"><table>
+    <thead><tr><th>Nature</th><th>Row</th><th class="num">Total Value</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST/UTGST</th><th class="num">Cess</th></tr></thead>
+    <tbody>
+      <tr><td>Outward taxable (excl. zero/nil/exempt)</td><td>3.1(a)</td><td class="num">${fR(ra.taxable)}</td><td class="num">${fR(ra.igst)}</td><td class="num">${fR(ra.cgst)}</td><td class="num">${fR(ra.sgst)}</td><td class="num">0.00</td></tr>
+      <tr><td>Zero-rated outward supplies</td><td>3.1(b)</td><td class="num">${fR(d.row_b.taxable)}</td><td class="num">${fR(d.row_b.igst)}</td><td class="num">—</td><td class="num">—</td><td class="num">0.00</td></tr>
+      <tr><td>Nil rated / Exempt / Non-GST</td><td>3.1(c)</td><td class="num">${fR(rc.taxable)}</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr><td>Inward supplies — Reverse Charge (RCM)</td><td>3.1(d)</td><td class="num">${fR(rd.taxable)}</td><td class="num">${fR(rd.igst)}</td><td class="num">${fR(rd.cgst)}</td><td class="num">${fR(rd.sgst)}</td><td class="num">0.00</td></tr>
+      <tr class="tr"><td>Output Liability (3.1a)</td><td></td><td></td><td class="num">${fR(ra.igst)}</td><td class="num">${fR(ra.cgst)}</td><td class="num">${fR(ra.sgst)}</td><td></td></tr>
+    </tbody>
+  </table></div></div>
+  <div class="sec"><div class="st">Table 3.2 — Inter-State Supplies</div></div>
+  <div class="card" style="margin-bottom:12px"><div class="tw"><table>
+    <thead><tr><th>Category</th><th class="num">Taxable Value</th><th class="num">IGST</th></tr></thead>
+    <tbody>
+      <tr><td>Supplies to Unregistered Persons (B2CL)</td><td class="num">${fR(d.inter.taxable)}</td><td class="num">${fR(d.inter.igst)}</td></tr>
+      <tr><td>Supplies to Composition Persons</td><td class="num">${fR(d.comp.taxable)}</td><td class="num">${fR(d.comp.igst)}</td></tr>
+    </tbody>
+  </table></div></div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Table 4 — Eligible ITC</div></div>
+  <div class="card" style="margin-bottom:12px"><div class="tw"><table>
+    <thead><tr><th>ITC Details</th><th>Row</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST/UTGST</th><th class="num">Total</th></tr></thead>
+    <tbody>
+      <tr><td>Inward supplies — RCM</td><td>4A(3)</td><td class="num">${fR(itc.rcm.igst)}</td><td class="num">${fR(itc.rcm.cgst)}</td><td class="num">${fR(itc.rcm.sgst)}</td><td class="num">${fR(itc.rcm.igst+itc.rcm.cgst+itc.rcm.sgst)}</td></tr>
+      <tr><td>All other ITC</td><td>4A(5)</td><td class="num">${fR(itc.all_other.igst)}</td><td class="num">${fR(itc.all_other.cgst)}</td><td class="num">${fR(itc.all_other.sgst)}</td><td class="num">${fR(itc.all_other.igst+itc.all_other.cgst+itc.all_other.sgst)}</td></tr>
+      <tr style="color:var(--red)"><td>Reversed — Rules 38, 42 &amp; 43</td><td>4B(1)</td><td class="num">(${fN(itc.rev1.igst)})</td><td class="num">(${fN(itc.rev1.cgst)})</td><td class="num">(${fN(itc.rev1.sgst)})</td><td class="num">(${fN(itc.rev1.igst+itc.rev1.cgst+itc.rev1.sgst)})</td></tr>
+      <tr style="color:var(--red)"><td>Reversed — Others</td><td>4B(2)</td><td class="num">(${fN(itc.rev2.igst)})</td><td class="num">(${fN(itc.rev2.cgst)})</td><td class="num">(${fN(itc.rev2.sgst)})</td><td class="num">(${fN(itc.rev2.igst+itc.rev2.cgst+itc.rev2.sgst)})</td></tr>
+      <tr class="tr"><td>Net ITC Available (computed)</td><td>4C</td><td class="num">${fR(netIgst)}</td><td class="num">${fR(netCgst)}</td><td class="num">${fR(netSgst)}</td><td class="num">${fR(netIgst+netCgst+netSgst)}</td></tr>
+      <tr style="color:var(--green)"><td>ITC Reclaimed (prev. reversed)</td><td>4D(1)</td><td class="num">${fR(itc.reclaimed.igst)}</td><td class="num">${fR(itc.reclaimed.cgst)}</td><td class="num">${fR(itc.reclaimed.sgst)}</td><td class="num">${fR(itc.reclaimed.igst+itc.reclaimed.cgst+itc.reclaimed.sgst)}</td></tr>
+    </tbody>
+  </table></div></div>
+  <div class="sep"></div>
+  <div class="g3">
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Output Liability (3.1a)</div>
+      <div class="t3"><div class="tb ib"><div class="tl">IGST</div><div class="tv">${fR(ra.igst)}</div></div><div class="tb cb2"><div class="tl">CGST</div><div class="tv">${fR(ra.cgst)}</div></div><div class="tb sb"><div class="tl">SGST</div><div class="tv">${fR(ra.sgst)}</div></div></div>
+    </div>
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:6px;color:var(--green)">Net ITC (4C)</div>
+      <div class="t3"><div class="tb ib"><div class="tl">IGST</div><div class="tv">${fR(netIgst)}</div></div><div class="tb cb2"><div class="tl">CGST</div><div class="tv">${fR(netCgst)}</div></div><div class="tb sb"><div class="tl">SGST</div><div class="tv">${fR(netSgst)}</div></div></div>
+    </div>
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:6px;color:var(--purple)">RCM Liability (3.1d)</div>
+      <div class="t3"><div class="tb ib"><div class="tl">IGST</div><div class="tv">${fR(rd.igst)}</div></div><div class="tb cb2"><div class="tl">CGST</div><div class="tv">${fR(rd.cgst)}</div></div><div class="tb sb"><div class="tl">SGST</div><div class="tv">${fR(rd.sgst)}</div></div></div>
+    </div>
+  </div>
+  <details style="margin-top:12px"><summary style="font-size:11px;color:var(--muted);cursor:pointer">▶ Parse log (verify all extracted values)</summary><div class="log">${d._log}</div></details>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Charts</div></div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Output Tax Mix — IGST / CGST / SGST</div><div class="cw" style="height:220px"><canvas id="c-3b-out"></canvas></div></div>
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">ITC Composition (All Periods)</div><div class="cw" style="height:220px"><canvas id="c-3b-itc-mix"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Output Tax vs Net ITC — All Periods</div><div class="cw" style="height:180px"><canvas id="c-3b-trend"></canvas></div></div>
+  <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">ITC Reversals — All Periods</div><div class="cw" style="height:180px"><canvas id="c-3b-rev"></canvas></div></div>`;
+  setTimeout(()=>drawG3BCharts(recs,pd,netIgst,netCgst,netSgst),80);
+}
+function drawG3BCharts(recs,pd,netIgst,netCgst,netSgst){
+  const ra=pd.data.row_a;
+  const allP=recs.slice().sort((a,b)=>pSort(a.period,b.period));
+  const labels=allP.map(r=>formatPeriod(r.period));
+  const gridC='rgba(128,128,128,0.08)';
+  const leg={labels:{font:{size:10},boxWidth:10,padding:8}};
+  const tickCb=v=>'₹'+Number(v).toLocaleString('en-IN');
+  function ni(d){const i=d.itc;return (i.netIgst??i.net?.igst??0)+(i.netCgst??i.net?.cgst??0)+(i.netSgst??i.net?.sgst??0);}
+  function mkChart(id,cfg){const c=document.getElementById(id);if(!c)return;S.charts[id]=new Chart(c,cfg);}
+  // Output tax donut
+  mkChart('c-3b-out',{type:'doughnut',data:{labels:['IGST','CGST','SGST'],datasets:[{data:[ra.igst,ra.cgst,ra.sgst],backgroundColor:['#185fa5cc','#0f6e56cc','#7a4a08cc'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg}}});
+  // ITC composition donut (latest period)
+  const itc=pd.data.itc;
+  const rcmV=itc.rcm?.igst??0,aoV=(itc.all_other?.igst??0)+(itc.all_other?.cgst??0)+(itc.all_other?.sgst??0);
+  const revV=(itc.rev1?.igst??0)+(itc.rev1?.cgst??0)+(itc.rev1?.sgst??0)+(itc.rev2?.igst??0)+(itc.rev2?.cgst??0)+(itc.rev2?.sgst??0);
+  mkChart('c-3b-itc-mix',{type:'doughnut',data:{labels:['RCM ITC','All Other ITC','Reversed'],datasets:[{data:[rcmV,aoV,revV],backgroundColor:['#0f6e56cc','#185fa5cc','#a32d2dcc'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg}}});
+  // Output vs Net ITC trend
+  mkChart('c-3b-trend',{type:'bar',data:{labels,datasets:[
+    {label:'Output Tax',data:allP.map(r=>{const a=r.data.row_a;return a.igst+a.cgst+a.sgst;}),backgroundColor:'#185fa566',borderColor:'#185fa5',borderWidth:1.5,borderRadius:3},
+    {label:'Net ITC',data:allP.map(r=>ni(r.data)),backgroundColor:'#0f6e5666',borderColor:'#0f6e56',borderWidth:1.5,borderRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{grid:{color:gridC}},y:{grid:{color:gridC},ticks:{callback:tickCb}}}}});
+  // Reversal trend line
+  mkChart('c-3b-rev',{type:'line',data:{labels,datasets:[
+    {label:'4B(1) Rules 42/43',data:allP.map(r=>{const i=r.data.itc;return (i.rev1?.igst??0)+(i.rev1?.cgst??0)+(i.rev1?.sgst??0);}),borderColor:'#a32d2d',backgroundColor:'#a32d2d22',tension:0.3,fill:true,pointRadius:3},
+    {label:'4B(2) Others',data:allP.map(r=>{const i=r.data.itc;return (i.rev2?.igst??0)+(i.rev2?.cgst??0)+(i.rev2?.sgst??0);}),borderColor:'#ef9f27',backgroundColor:'#ef9f2722',tension:0.3,fill:true,pointRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{grid:{color:gridC}},y:{grid:{color:gridC},ticks:{callback:tickCb}}}}});
+}
+
+// ── COMPARISON ────────────────────────────────────────────────────────────────
+function renderCmp(){
+  const mc=document.getElementById('main');
+  const r1=gcd('gstr1'),r3=gcd('gstr3b');
+  if(!r1.length&&!r3.length){mc.innerHTML=cbar()+'<div class="empty">Upload both GSTR-1 and GSTR-3B to compare.</div>';return}
+  mc.innerHTML=cbar()+pbar([...r1,...r3])+'<div id="cmpb"></div>';
+  const thresh=parseFloat(document.getElementById('threshold').value)||100;
+  const g1=r1.find(r=>r.period===S.activePeriod),g3=r3.find(r=>r.period===S.activePeriod);
+  if(!g1||!g3){document.getElementById('cmpb').innerHTML=`<div class="nt nw">⚠ Need both GSTR-1 and GSTR-3B for ${formatPeriod(S.activePeriod)}. Have: ${g1?'GSTR-1 ✓':'GSTR-1 ✗'} ${g3?'GSTR-3B ✓':'GSTR-3B ✗'}</div>`;return}
+  const d1=g1.data,d3=g3.data;
+  // B2CL visibility toggle (off by default)
+  const showB2CL=S.showB2CL||false;
+  const cmpRows=[
+    {l:'Total Value — Outward Supplies',n:'GSTR-1 Total Value vs 3B Total (3.1a+b+c)',g1:d1.summary.taxable_value,g3:d3.row_a.taxable+d3.row_b.taxable+d3.row_c.taxable},
+    {l:'IGST — Output Tax',n:'',g1:d1.summary.igst,g3:d3.row_a.igst},
+    {l:'CGST — Output Tax',n:'',g1:d1.summary.cgst,g3:d3.row_a.cgst},
+    {l:'SGST / UTGST — Output Tax',n:'',g1:d1.summary.sgst,g3:d3.row_a.sgst},
+    {l:'Total Output Tax',n:'',g1:d1.summary.total_tax,g3:d3.row_a.igst+d3.row_a.cgst+d3.row_a.sgst},
+    ...(showB2CL?[{l:'B2CL IGST — Inter-state to Unregistered',n:'GSTR-1 Table 5 vs 3B Table 3.2',g1:d1.b2cl.igst,g3:d3.inter.igst}]:[]),
+    {l:'Nil / Exempt Supplies',n:'GSTR-1 Table 8 vs 3B Table 3.1(c)',g1:d1.nilExempt.total,g3:d3.row_c.taxable},
+  ];
+  const mismatches=cmpRows.filter(r=>Math.abs(r.g3-r.g1)>=thresh);
+  const rh=r=>{const diff=r.g3-r.g1,flag=Math.abs(diff)>=thresh;
+    return `<tr class="${flag?'mr':'or'}"><td>${r.l}${r.n?`<div style="font-size:10px;color:var(--muted)">${r.n}</div>`:''}</td><td class="num">${fR(r.g1)}</td><td class="num">${fR(r.g3)}</td><td class="num ${diff>0?'dp':'dn'}">${diff>=0?'+':''}${fR(diff)}</td><td>${flag?'<span class="badge br">⚠ Mismatch</span>':'<span class="badge bg">✓ OK</span>'}</td></tr>`;};
+  document.getElementById('cmpb').innerHTML=`
+  <div class="sec"><div class="st">GSTR-1 vs GSTR-3B — ${formatPeriod(S.activePeriod)}</div>
+    <span class="badge ${mismatches.length?'br':'bg'}">${mismatches.length} mismatch${mismatches.length!==1?'es':''}</span>
+    <span class="badge bm">Threshold ₹${thresh.toLocaleString('en-IN')}</span>
+    <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;margin-left:auto">
+      <input type="checkbox" ${showB2CL?'checked':''} onchange="S.showB2CL=this.checked;dc();go('compare')" style="cursor:pointer">
+      Show B2CL row
+    </label>
+  </div>
+  ${mismatches.length?`<div class="nt nw">⚠ ${mismatches.length} field(s) differ by more than ₹${thresh.toLocaleString('en-IN')}.</div>`:`<div class="nt nok">✓ All values within tolerance.</div>`}
+  <div class="card" style="margin-bottom:12px"><div class="tw"><table>
+    <thead><tr><th>Field</th><th class="num">GSTR-1</th><th class="num">GSTR-3B</th><th class="num">Diff (3B − 1)</th><th>Status</th></tr></thead>
+    <tbody>${cmpRows.map(rh).join('')}</tbody>
+  </table></div></div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">GSTR-3B ITC Summary</div></div>
+  <div class="card"><div class="tw"><table>
+    <thead><tr><th>ITC Detail</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th><th class="num">Total</th></tr></thead>
+    <tbody>
+      <tr><td>All Other ITC (4A-5)</td><td class="num">${fR(d3.itc.all_other.igst)}</td><td class="num">${fR(d3.itc.all_other.cgst)}</td><td class="num">${fR(d3.itc.all_other.sgst)}</td><td class="num">${fR(d3.itc.all_other.igst+d3.itc.all_other.cgst+d3.itc.all_other.sgst)}</td></tr>
+      <tr><td>RCM ITC (4A-3)</td><td class="num">${fR(d3.itc.rcm.igst)}</td><td class="num">—</td><td class="num">—</td><td class="num">${fR(d3.itc.rcm.igst)}</td></tr>
+      <tr style="color:var(--red)"><td>ITC Reversed (4B-1+4B-2)</td><td class="num">(${fN(d3.itc.rev1.igst+d3.itc.rev2.igst)})</td><td class="num">(${fN(d3.itc.rev1.cgst+d3.itc.rev2.cgst)})</td><td class="num">(${fN(d3.itc.rev1.sgst+d3.itc.rev2.sgst)})</td><td class="num">(${fN(d3.itc.rev1.igst+d3.itc.rev2.igst+d3.itc.rev1.cgst+d3.itc.rev2.cgst+d3.itc.rev1.sgst+d3.itc.rev2.sgst)})</td></tr>
+      <tr class="tr"><td>Net ITC (4C — computed)</td><td class="num">${fR(d3.itc.netIgst??d3.itc.net.igst)}</td><td class="num">${fR(d3.itc.netCgst??d3.itc.net.cgst)}</td><td class="num">${fR(d3.itc.netSgst??d3.itc.net.sgst)}</td><td class="num">${fR((d3.itc.netIgst??d3.itc.net.igst)+(d3.itc.netCgst??d3.itc.net.cgst)+(d3.itc.netSgst??d3.itc.net.sgst))}</td></tr>
+    </tbody>
+  </table></div></div>`;
+}
+
+// ── PERIOD DETAIL ─────────────────────────────────────────────────────────────
+function renderPeriod(){
+  const mc=document.getElementById('main');
+  const r1=gcd('gstr1'),r3=gcd('gstr3b');
+  if(!r1.length&&!r3.length){mc.innerHTML=cbar()+'<div class="empty">No data uploaded. <a href="#" onclick="go(\'upload\')">Upload →</a></div>';return}
+  mc.innerHTML=cbar()+pbar([...r1,...r3])+'<div id="pdb"></div>';
+  const period=S.activePeriod;
+  const g1e=r1.find(r=>r.period===period),g3e=r3.find(r=>r.period===period);
+  const d1=g1e?.data,d3=g3e?.data,s=d1?.summary||{};
+  const prev1P=[...r1].sort((a,b)=>pSort(a.period,b.period));
+  const prev3P=[...r3].sort((a,b)=>pSort(a.period,b.period));
+  const pi1=prev1P.findIndex(r=>r.period===period),pi3=prev3P.findIndex(r=>r.period===period);
+  const pk1=pi1>0?prev1P[pi1-1].data.summary:null;
+  const pk3=pi3>0?prev3P[pi3-1].data:null;
+
+  // MoM badge
+  function mom(curr,prev){
+    if(prev==null||prev===0||isNaN(prev)) return '';
+    const p=((curr-prev)/Math.abs(prev)*100),up=p>=0;
+    return `<span class="badge ${up?'bg':'br'}" style="font-size:9px">${up?'↑':'↓'}${Math.abs(p).toFixed(1)}%</span>`;
+  }
+
+  // Grouped stat row: label | value (colored) | MoM badge
+  function row(lbl,val,prev,col){
+    return`<tr>
+      <td style="font-size:11px;color:var(--muted);padding:6px 10px;width:55%">${lbl}</td>
+      <td style="text-align:right;font-weight:700;font-size:13px;color:${col||'var(--text)'};padding:6px 10px;font-variant-numeric:tabular-nums;white-space:nowrap">${fR(val)}</td>
+      <td style="padding:6px 10px;white-space:nowrap">${mom(val,prev)}</td>
+    </tr>`;
+  }
+
+  // Section card with colored left border
+  function section(title,color,rows){
+    return`<div class="card" style="margin-bottom:10px;border-left:3px solid ${color};padding:0">
+      <div style="padding:8px 12px;border-bottom:0.5px solid var(--bdr);font-size:11px;font-weight:600;color:${color};letter-spacing:.3px">${title}</div>
+      <table style="width:100%"><tbody>${rows}</tbody></table>
+    </div>`;
+  }
+
+  // Tax breakup three-col summary
+  function taxRow(lbl,igst,cgst,sgst){
+    return`<tr>
+      <td style="font-size:11px;color:var(--muted);padding:6px 10px;width:40%">${lbl}</td>
+      <td style="text-align:right;font-size:12px;font-weight:600;color:var(--blue);padding:6px 8px;font-variant-numeric:tabular-nums">${fR(igst)}<div style="font-size:9px;font-weight:400;color:var(--muted)">IGST</div></td>
+      <td style="text-align:right;font-size:12px;font-weight:600;color:var(--teal);padding:6px 8px;font-variant-numeric:tabular-nums">${fR(cgst)}<div style="font-size:9px;font-weight:400;color:var(--muted)">CGST</div></td>
+      <td style="text-align:right;font-size:12px;font-weight:600;color:var(--amber);padding:6px 8px;font-variant-numeric:tabular-nums">${fR(sgst)}<div style="font-size:9px;font-weight:400;color:var(--muted)">SGST</div></td>
+      <td style="text-align:right;font-size:12px;font-weight:600;padding:6px 10px;font-variant-numeric:tabular-nums">${fR(igst+cgst+sgst)}<div style="font-size:9px;font-weight:400;color:var(--muted)">Total</div></td>
+    </tr>`;
+  }
+
+  // ── GSTR-1 sections ──
+  const g1html=d1?`
+  <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px">
+    <div style="font-size:13px;font-weight:700;color:var(--teal)">GSTR-1 — Outward Supply Detail</div>
+    <span class="badge bt">${formatPeriod(period)}</span>
+    <div style="flex:1;height:2px;background:var(--teal);opacity:.3;border-radius:1px"></div>
+  </div>
+  <div class="g2" style="margin-bottom:0">
+    <div>
+      ${section('Tax Summary','var(--teal)',
+        row('Total Value (Outward)',s.taxable_value,pk1?.taxable_value,'var(--teal)')+
+        row('Total Tax Liability',s.total_tax,pk1?.total_tax,'var(--blue)')+
+        row('IGST',s.igst,pk1?.igst,'var(--blue)')+
+        row('CGST',s.cgst,pk1?.cgst,'var(--teal)')+
+        row('SGST / UTGST',s.sgst,pk1?.sgst,'var(--amber)')
+      )}
+      ${section('B2B — Registered Parties','var(--blue)',
+        row('Taxable Value',d1.b2b.value,null,'var(--text)')+
+        taxRow('Tax',d1.b2b.igst,d1.b2b.cgst,d1.b2b.sgst)
+      )}
+      ${section('Credit & Debit Notes','var(--red)',
+        row('CDNR IGST (Registered)',d1.cdnr.igst,null,'var(--red)')+
+        row('CDNR CGST',d1.cdnr.cgst,null,'var(--red)')+
+        row('CDNR SGST',d1.cdnr.sgst,null,'var(--red)')+
+        row('CDNUR IGST (Unregistered)',d1.cdnur.igst,null,'var(--red)')
+      )}
+    </div>
+    <div>
+      ${section('B2CS — Unregistered Consumers','var(--purple)',
+        row('Taxable Value',d1.b2cs.value,null,'var(--text)')+
+        taxRow('Tax',d1.b2cs.igst,d1.b2cs.cgst,d1.b2cs.sgst)
+      )}
+      ${section('B2CL — Large Inter-State','var(--amber)',
+        row('Taxable Value',d1.b2cl.value,null,'var(--text)')+
+        row('IGST',d1.b2cl.igst,null,'var(--blue)')
+      )}
+      ${section('Nil / Exempt / Non-GST','var(--muted)',
+        row('Total Nil & Exempt (Table 8)',d1.nilExempt.total,null,'var(--muted)')+
+        row('Exempt Supplies',d1.nilExempt.exempt,null,'var(--muted)')
+      )}
+    </div>
+  </div>`:`<div class="nt nw" style="margin-bottom:12px">⚠ No GSTR-1 data for ${formatPeriod(period)}</div>`;
+
+  // ── GSTR-3B sections ──
+  const ni3b=d3?{igst:d3.itc.netIgst??d3.itc.net.igst,cgst:d3.itc.netCgst??d3.itc.net.cgst,sgst:d3.itc.netSgst??d3.itc.net.sgst}:null;
+  const g3html=d3?`
+  <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+    <div style="font-size:13px;font-weight:700;color:var(--purple)">GSTR-3B — Liability &amp; ITC Detail</div>
+    <span class="badge bb">${formatPeriod(period)}</span>
+    <div style="flex:1;height:2px;background:var(--purple);opacity:.3;border-radius:1px"></div>
+  </div>
+  <div class="g2" style="margin-bottom:0">
+    <div>
+      ${section('Outward Supplies (3.1)','var(--purple)',
+        row('Total Outward (3.1a+b+c)',d3.row_a.taxable+d3.row_b.taxable+d3.row_c.taxable,null,'var(--text)')+
+        taxRow('Output Tax (3.1a)',d3.row_a.igst,d3.row_a.cgst,d3.row_a.sgst)+
+        row('Zero-Rated (3.1b)',d3.row_b.taxable,null,'var(--muted)')+
+        row('Nil / Exempt (3.1c)',d3.row_c.taxable,null,'var(--muted)')+
+        row('RCM Taxable (3.1d)',d3.row_d.taxable,null,'var(--muted)')+
+        row('RCM IGST (3.1d)',d3.row_d.igst,pk3?.row_d.igst,'var(--purple)')
+      )}
+      ${section('ITC Reversed (4B)','var(--red)',
+        taxRow('Rules 38, 42 & 43 (4B-1)',d3.itc.rev1.igst,d3.itc.rev1.cgst,d3.itc.rev1.sgst)+
+        taxRow('Others (4B-2)',d3.itc.rev2.igst,d3.itc.rev2.cgst,d3.itc.rev2.sgst)
+      )}
+    </div>
+    <div>
+      ${section('ITC Available (4A)','var(--green)',
+        row('RCM ITC (4A-3)',d3.itc.rcm.igst,null,'var(--green)')+
+        taxRow('All Other ITC (4A-5)',d3.itc.all_other.igst,d3.itc.all_other.cgst,d3.itc.all_other.sgst)
+      )}
+      ${section('Net ITC (4C — Computed)','var(--green)',
+        taxRow('Net ITC',ni3b.igst,ni3b.cgst,ni3b.sgst)+
+        row('Net ITC Total',ni3b.igst+ni3b.cgst+ni3b.sgst,pk3?(pk3.itc.netIgst??pk3.itc.net.igst)+(pk3.itc.netCgst??pk3.itc.net.cgst)+(pk3.itc.netSgst??pk3.itc.net.sgst):null,'var(--green)')+
+        row('ITC Reclaimed (4D-1)',d3.itc.reclaimed.igst+d3.itc.reclaimed.cgst+d3.itc.reclaimed.sgst,null,'var(--green)')
+      )}
+    </div>
+  </div>`:`<div class="nt nw">⚠ No GSTR-3B data for ${formatPeriod(period)}</div>`;
+
+  document.getElementById('pdb').innerHTML=g1html+g3html;
+}
+
+// ── ANNUAL ────────────────────────────────────────────────────────────────────
+function selFY(fy){S.activeFY=fy;S.activePeriod=null;dc();go('annual');}
+function renderAnnual(){
+  const mc=document.getElementById('main');
+  if(!Object.keys(S.clients).length){mc.innerHTML='<div class="empty">No files uploaded.</div>';return}
+  mc.innerHTML=cbar()+'<div id="annb"></div>';
+  const cl=S.clients[S.activeClient];if(!cl) return;
+
+  // ── FY selector ──
+  const fys=clientFYs(cl);
+  if(!S.activeFY||!fys.includes(S.activeFY)) S.activeFY=fys[fys.length-1]||null;
+  const fyBar=fys.length?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <span style="font-size:10px;color:var(--muted);margin-right:2px">FY:</span>
+    ${fys.map(fy=>`<div class="pp${fy===S.activeFY?' active':''}" onclick="selFY('${fy}')">${fy}</div>`).join('')}
+    <span style="font-size:10px;color:var(--muted);margin-left:8px">All periods in FY:</span>
+  </div>`:'';
+
+  // ── filter to selected FY ──
+  const allR=[...cl.gstr1,...cl.gstr3b].filter(r=>periodToFY(r.period)===S.activeFY);
+  const periods=[...new Set(allR.map(r=>r.period))].sort(pSort);
+  const thresh=parseFloat(document.getElementById('threshold').value)||100;
+  const rows=periods.map(p=>{
+    const g1=cl.gstr1.find(r=>r.period===p),g3=cl.gstr3b.find(r=>r.period===p);
+    const diff=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
+    return{p,g1,g3,diff,flagged:diff!=null&&Math.abs(diff)>=thresh};
+  });
+  const t1tv=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.taxable_value,0);
+  const t1ig=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.igst,0);
+  const t1cg=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.cgst,0);
+  const t1sg=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.sgst,0);
+  const t3tv=rows.filter(r=>r.g3).reduce((a,r)=>a+(r.g3.data.row_a.taxable+r.g3.data.row_b.taxable+r.g3.data.row_c.taxable),0);
+  const t3ig=rows.filter(r=>r.g3).reduce((a,r)=>a+r.g3.data.row_a.igst,0);
+  const t3cg=rows.filter(r=>r.g3).reduce((a,r)=>a+r.g3.data.row_a.cgst,0);
+  const t3sg=rows.filter(r=>r.g3).reduce((a,r)=>a+r.g3.data.row_a.sgst,0);
+  const titc=rows.filter(r=>r.g3).reduce((a,r)=>{const i=r.g3.data.itc;return a+(i.netIgst??i.net?.igst??0)+(i.netCgst??i.net?.cgst??0)+(i.netSgst??i.net?.sgst??0);},0);
+  const tniIgst=rows.filter(r=>r.g3).reduce((a,r)=>{const i=r.g3.data.itc;return a+(i.netIgst??i.net?.igst??0);},0);
+  const tniCgst=rows.filter(r=>r.g3).reduce((a,r)=>{const i=r.g3.data.itc;return a+(i.netCgst??i.net?.cgst??0);},0);
+  const tniSgst=rows.filter(r=>r.g3).reduce((a,r)=>{const i=r.g3.data.itc;return a+(i.netSgst??i.net?.sgst??0);},0);
+
+  // Annual main table rows
+  const annRows=rows.map(r=>{
+    const g1=r.g1,g3=r.g3;
+    const niIgst=g3?(g3.data.itc.netIgst??g3.data.itc.net?.igst??0):null;
+    const niCgst=g3?(g3.data.itc.netCgst??g3.data.itc.net?.cgst??0):null;
+    const niSgst=g3?(g3.data.itc.netSgst??g3.data.itc.net?.sgst??0):null;
+    const ni=niIgst!=null?(niIgst+niCgst+niSgst):null;
+    return`<tr><td style="white-space:nowrap;border-right:2px solid var(--bdr)">${formatPeriod(r.p)}</td>
+      <td class="num" style="background:rgba(15,110,86,0.04)">${g1?fR(g1.data.summary.taxable_value):'—'}</td>
+      <td class="num" style="background:rgba(15,110,86,0.04);color:var(--blue)">${g1?fR(g1.data.summary.igst):'—'}</td>
+      <td class="num" style="background:rgba(15,110,86,0.04);color:var(--teal)">${g1?fR(g1.data.summary.cgst):'—'}</td>
+      <td class="num" style="background:rgba(15,110,86,0.04);color:var(--amber);border-right:2px solid var(--bdr)">${g1?fR(g1.data.summary.sgst):'—'}</td>
+      <td class="num" style="background:rgba(83,74,183,0.04)">${g3?fR(g3.data.row_a.taxable+g3.data.row_b.taxable+g3.data.row_c.taxable):'—'}</td>
+      <td class="num" style="background:rgba(83,74,183,0.04);color:var(--blue)">${g3?fR(g3.data.row_a.igst):'—'}</td>
+      <td class="num" style="background:rgba(83,74,183,0.04);color:var(--teal)">${g3?fR(g3.data.row_a.cgst):'—'}</td>
+      <td class="num" style="background:rgba(83,74,183,0.04);color:var(--amber);border-right:2px solid var(--bdr)">${g3?fR(g3.data.row_a.sgst):'—'}</td>
+      <td class="num" style="background:rgba(59,109,17,0.04);color:var(--green)">${ni!=null?fR(ni):'—'}</td>
+      <td class="num" style="background:rgba(59,109,17,0.04);color:var(--blue)">${niIgst!=null?fR(niIgst):'—'}</td>
+      <td class="num" style="background:rgba(59,109,17,0.04);color:var(--teal)">${niCgst!=null?fR(niCgst):'—'}</td>
+      <td class="num" style="background:rgba(59,109,17,0.04);color:var(--amber);border-right:2px solid var(--bdr)">${niSgst!=null?fR(niSgst):'—'}</td>
+      <td class="num" style="background:rgba(122,74,8,0.04)">${g3?fR(g3.data.row_d.igst):'—'}</td>
+      <td class="num ${r.diff!=null?(r.diff>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diff!=null?(r.diff>=0?'+':'')+fN(r.diff):'—'}</td>
+      <td style="background:rgba(122,74,8,0.04)">${r.flagged?'<span class="badge br">⚠</span>':(r.diff!=null?'<span class="badge bg">✓</span>':'—')}</td>
+    </tr>`;
+  }).join('');
+
+  // ITC detail table rows
+  const itcRows=rows.filter(r=>r.g3).map(r=>{
+    const i=r.g3.data.itc;
+    const ig=i.imp_goods||{igst:0,cgst:0,sgst:0};
+    const is=i.imp_services||{igst:0,cgst:0,sgst:0};
+    const rc=i.rcm||{igst:0,cgst:0,sgst:0};
+    const id=i.isd||{igst:0,cgst:0,sgst:0};
+    const ao=i.all_other||{igst:0,cgst:0,sgst:0};
+    const r1=i.rev1||{igst:0,cgst:0,sgst:0};
+    const r2=i.rev2||{igst:0,cgst:0,sgst:0};
+    const nt={igst:i.netIgst??i.net?.igst??0,cgst:i.netCgst??i.net?.cgst??0,sgst:i.netSgst??i.net?.sgst??0};
+    const re=i.reclaimed||{igst:0,cgst:0,sgst:0};
+    const il=i.ineligible||{igst:0,cgst:0,sgst:0};
+    return`<tr><td style="white-space:nowrap">${formatPeriod(r.p)}</td>
+      <td class="num" style="color:var(--blue)">${fR(ig.igst)}</td><td class="num" style="color:var(--teal)">${fR(ig.cgst)}</td><td class="num" style="color:var(--amber)">${fR(ig.sgst)}</td>
+      <td class="num" style="color:var(--blue)">${fR(is.igst)}</td><td class="num" style="color:var(--teal)">${fR(is.cgst)}</td><td class="num" style="color:var(--amber)">${fR(is.sgst)}</td>
+      <td class="num" style="color:var(--blue)">${fR(rc.igst)}</td><td class="num" style="color:var(--teal)">${fR(rc.cgst)}</td><td class="num" style="color:var(--amber)">${fR(rc.sgst)}</td>
+      <td class="num" style="color:var(--blue)">${fR(id.igst)}</td><td class="num" style="color:var(--teal)">${fR(id.cgst)}</td><td class="num" style="color:var(--amber)">${fR(id.sgst)}</td>
+      <td class="num" style="color:var(--blue)">${fR(ao.igst)}</td><td class="num" style="color:var(--teal)">${fR(ao.cgst)}</td><td class="num" style="color:var(--amber)">${fR(ao.sgst)}</td>
+      <td class="num" style="color:var(--red)">${fR(r1.igst)}</td><td class="num" style="color:var(--red)">${fR(r1.cgst)}</td><td class="num" style="color:var(--red)">${fR(r1.sgst)}</td>
+      <td class="num" style="color:var(--red)">${fR(r2.igst)}</td><td class="num" style="color:var(--red)">${fR(r2.cgst)}</td><td class="num" style="color:var(--red)">${fR(r2.sgst)}</td>
+      <td class="num" style="color:var(--blue);font-weight:600">${fR(nt.igst)}</td><td class="num" style="color:var(--teal);font-weight:600">${fR(nt.cgst)}</td><td class="num" style="color:var(--amber);font-weight:600">${fR(nt.sgst)}</td>
+      <td class="num" style="color:var(--green)">${fR(re.igst)}</td><td class="num" style="color:var(--green)">${fR(re.cgst)}</td><td class="num" style="color:var(--green)">${fR(re.sgst)}</td>
+      <td class="num" style="color:var(--red)">${fR(il.igst)}</td><td class="num" style="color:var(--red)">${fR(il.cgst)}</td><td class="num" style="color:var(--red)">${fR(il.sgst)}</td>
+    </tr>`;
+  }).join('');
+
+  function thg(lbl,sub,col,n){return`<th colspan="${n||3}" style="text-align:center;border-left:1px solid var(--bdr);color:${col||'var(--muted)'};">${lbl}<br><span style="font-weight:400;font-size:9px;opacity:.75">${sub}</span></th>`;}
+
+  document.getElementById('annb').innerHTML=`
+  <div class="sec"><div class="st">Annual Summary — ${cl.gstn}</div>
+    <span class="badge bt">${cl.name}</span><span class="badge bm">${periods.length} period(s) · FY ${S.activeFY||''}</span>
+    <button class="btn bsm" style="margin-left:auto;background:var(--green-l,#eaf3de);color:var(--green,#3b6d11);border-color:var(--green-t,#97c459)" onclick="doSave()">💾 Save Client</button>
+    <button class="btn btnp bsm" onclick="dlXL()">↓ Excel</button>
+    <button class="btn bsm" style="background:var(--blue-l);color:var(--blue);border-color:var(--blue-t)" onclick="window.print()">🖨 PDF</button>
+  </div>
+  ${fyBar}
+  <div class="kg">
+    <div class="kpi"><div class="kl">Total Value (GSTR-1)</div><div class="kv" style="color:var(--teal)">${fR(t1tv)}</div></div>
+    <div class="kpi"><div class="kl">IGST — 1 / 3B</div><div class="kv" style="color:var(--blue)">${fR(t1ig)}</div><div class="ks">3B: ${fR(t3ig)}</div></div>
+    <div class="kpi"><div class="kl">CGST — 1 / 3B</div><div class="kv" style="color:var(--teal)">${fR(t1cg)}</div><div class="ks">3B: ${fR(t3cg)}</div></div>
+    <div class="kpi"><div class="kl">SGST — 1 / 3B</div><div class="kv" style="color:var(--amber)">${fR(t1sg)}</div><div class="ks">3B: ${fR(t3sg)}</div></div>
+    <div class="kpi"><div class="kl">Net ITC Total (4C)</div><div class="kv" style="color:var(--green)">${fR(titc)}</div></div>
+    <div class="kpi"><div class="kl">Net ITC IGST</div><div class="kv" style="color:var(--blue)">${fR(tniIgst)}</div></div>
+    <div class="kpi"><div class="kl">Net ITC CGST</div><div class="kv" style="color:var(--teal)">${fR(tniCgst)}</div></div>
+    <div class="kpi"><div class="kl">Net ITC SGST</div><div class="kv" style="color:var(--amber)">${fR(tniSgst)}</div></div>
+  </div>
+
+  <div class="sec"><div class="st">Period-wise Summary</div><span class="badge bm">GSTR-1 &amp; GSTR-3B · FY ${S.activeFY||''}</span></div>
+  <div class="card" style="margin-bottom:16px;padding:0"><div class="tw"><table>
+    <thead>
+      <tr>
+        <th rowspan="2" style="padding:10px;border-right:2px solid var(--bdr);background:var(--bg)">Period</th>
+        <th colspan="4" style="text-align:center;background:rgba(15,110,86,0.12);color:var(--teal);border-bottom:2px solid var(--teal);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-1 — Outward Supply</th>
+        <th colspan="4" style="text-align:center;background:rgba(83,74,183,0.12);color:var(--purple);border-bottom:2px solid var(--purple);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-3B — Output (3.1a+b+c)</th>
+        <th colspan="4" style="text-align:center;background:rgba(59,109,17,0.12);color:var(--green);border-bottom:2px solid var(--green);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">Net ITC (Table 4C — computed)</th>
+        <th colspan="3" style="text-align:center;background:rgba(122,74,8,0.1);color:var(--amber);border-bottom:2px solid var(--amber);padding:8px 6px;font-size:11px;letter-spacing:.3px">Variance</th>
+      </tr>
+      <tr>
+        <th class="num" style="background:rgba(15,110,86,0.06)">Total Value</th>
+        <th class="num" style="background:rgba(15,110,86,0.06);color:var(--blue)">IGST</th>
+        <th class="num" style="background:rgba(15,110,86,0.06);color:var(--teal)">CGST</th>
+        <th class="num" style="background:rgba(15,110,86,0.06);color:var(--amber);border-right:2px solid var(--bdr)">SGST</th>
+        <th class="num" style="background:rgba(83,74,183,0.06)">Total</th>
+        <th class="num" style="background:rgba(83,74,183,0.06);color:var(--blue)">IGST</th>
+        <th class="num" style="background:rgba(83,74,183,0.06);color:var(--teal)">CGST</th>
+        <th class="num" style="background:rgba(83,74,183,0.06);color:var(--amber);border-right:2px solid var(--bdr)">SGST</th>
+        <th class="num" style="background:rgba(59,109,17,0.06)">Total</th>
+        <th class="num" style="background:rgba(59,109,17,0.06);color:var(--blue)">IGST</th>
+        <th class="num" style="background:rgba(59,109,17,0.06);color:var(--teal)">CGST</th>
+        <th class="num" style="background:rgba(59,109,17,0.06);color:var(--amber);border-right:2px solid var(--bdr)">SGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06)">RCM IGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06)">IGST Diff</th>
+        <th style="background:rgba(122,74,8,0.06)">Flag</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${annRows}
+      <tr style="font-weight:700;background:var(--bg);border-top:2px solid var(--bdr)"><td style="border-right:2px solid var(--bdr)">TOTAL</td>
+        <td class="num">${fR(t1tv)}</td><td class="num">${fR(t1ig)}</td><td class="num">${fR(t1cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t1sg)}</td>
+        <td class="num">${fR(t3tv)}</td><td class="num">${fR(t3ig)}</td><td class="num">${fR(t3cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t3sg)}</td>
+        <td class="num">${fR(titc)}</td><td class="num">${fR(tniIgst)}</td><td class="num">${fR(tniCgst)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(tniSgst)}</td>
+        <td></td><td></td><td></td>
+      </tr>
+    </tbody>
+  </table></div></div>
+
+  <div class="sec"><div class="st">ITC Detail — Table 4 All Rows</div><span class="badge bb">GSTR-3B Annual</span></div>
+  <div class="card"><div class="tw"><table>
+    <thead>
+      <tr>
+        <th rowspan="2">Period</th>
+        ${thg('4A(1) Import Goods','IGST / CGST / SGST','var(--muted)')}
+        ${thg('4A(2) Import Services','IGST / CGST / SGST','var(--muted)')}
+        ${thg('4A(3) RCM','IGST / CGST / SGST','var(--muted)')}
+        ${thg('4A(4) ISD','IGST / CGST / SGST','var(--muted)')}
+        ${thg('4A(5) All Other','IGST / CGST / SGST','var(--muted)')}
+        ${thg('4B(1) Rev Rules 42/43','IGST / CGST / SGST','var(--red)')}
+        ${thg('4B(2) Rev Others','IGST / CGST / SGST','var(--red)')}
+        ${thg('4C Net ITC','IGST / CGST / SGST','var(--green)')}
+        ${thg('4D(1) Reclaimed','IGST / CGST / SGST','var(--green)')}
+        ${thg('4D(2) Ineligible','IGST / CGST / SGST','var(--red)')}
+      </tr>
+      <tr>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--red)">I</th><th class="num" style="color:var(--red)">C</th><th class="num" style="color:var(--red)">S</th>
+        <th class="num" style="color:var(--red)">I</th><th class="num" style="color:var(--red)">C</th><th class="num" style="color:var(--red)">S</th>
+        <th class="num" style="color:var(--blue)">I</th><th class="num" style="color:var(--teal)">C</th><th class="num" style="color:var(--amber)">S</th>
+        <th class="num" style="color:var(--green)">I</th><th class="num" style="color:var(--green)">C</th><th class="num" style="color:var(--green)">S</th>
+        <th class="num" style="color:var(--red)">I</th><th class="num" style="color:var(--red)">C</th><th class="num" style="color:var(--red)">S</th>
+      </tr>
+    </thead>
+    <tbody>${itcRows}</tbody>
+  </table></div></div>
+  <div class="sep"></div>
+  <div class="sec"><div class="st">Trend Charts</div><span class="badge bm">All Periods</span></div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Total Value — GSTR-1 vs 3B</div><div class="cw" style="height:200px"><canvas id="c-ann-tv"></canvas></div></div>
+    <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Tax Collected — IGST / CGST / SGST (GSTR-1)</div><div class="cw" style="height:200px"><canvas id="c-ann-tax"></canvas></div></div>
+  </div>
+  <div class="card"><div style="font-size:11px;font-weight:600;margin-bottom:4px">Output Tax vs Net ITC (GSTR-3B)</div><div class="cw" style="height:200px"><canvas id="c-ann-itc"></canvas></div></div>`;
+  setTimeout(()=>drawAnnualCharts(cl,rows,periods),80);
+}
+function drawAnnualCharts(cl,rows,periods){
+  const labels=periods.map(formatPeriod);
+  const gridC='rgba(128,128,128,0.08)';
+  const leg={labels:{font:{size:10},boxWidth:10,padding:8}};
+  const tickCb=v=>'₹'+Number(v).toLocaleString('en-IN');
+  function mkChart(id,cfg){const c=document.getElementById(id);if(!c)return;S.charts[id]=new Chart(c,cfg);}
+  function niOf(g3){const i=g3.data.itc;return (i.netIgst??i.net?.igst??0)+(i.netCgst??i.net?.cgst??0)+(i.netSgst??i.net?.sgst??0);}
+  // Taxable value comparison
+  mkChart('c-ann-tv',{type:'bar',data:{labels,datasets:[
+    {label:'GSTR-1 Total Value',data:rows.map(r=>r.g1?.data.summary.taxable_value??0),backgroundColor:'#185fa566',borderColor:'#185fa5',borderWidth:1.5,borderRadius:3},
+    {label:'3B Total (3.1a+b+c)',data:rows.map(r=>(r.g3?.data.row_a.taxable??0)+(r.g3?.data.row_b.taxable??0)+(r.g3?.data.row_c.taxable??0)),backgroundColor:'#534ab766',borderColor:'#534ab7',borderWidth:1.5,borderRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{grid:{color:gridC}},y:{grid:{color:gridC},ticks:{callback:tickCb}}}}});
+  // Tax stacked
+  mkChart('c-ann-tax',{type:'bar',data:{labels,datasets:[
+    {label:'IGST',data:rows.map(r=>r.g1?.data.summary.igst??0),backgroundColor:'#185fa599',borderRadius:2,stack:'s'},
+    {label:'CGST',data:rows.map(r=>r.g1?.data.summary.cgst??0),backgroundColor:'#0f6e5699',borderRadius:2,stack:'s'},
+    {label:'SGST',data:rows.map(r=>r.g1?.data.summary.sgst??0),backgroundColor:'#7a4a0899',borderRadius:2,stack:'s'},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{stacked:true,grid:{color:gridC}},y:{stacked:true,grid:{color:gridC},ticks:{callback:tickCb}}}}});
+  // Output vs ITC line
+  mkChart('c-ann-itc',{type:'line',data:{labels,datasets:[
+    {label:'Output Tax',data:rows.map(r=>r.g3?(r.g3.data.row_a.igst+r.g3.data.row_a.cgst+r.g3.data.row_a.sgst):0),borderColor:'#185fa5',backgroundColor:'#185fa522',tension:0.3,fill:true,pointRadius:3},
+    {label:'Net ITC',data:rows.map(r=>r.g3?niOf(r.g3):0),borderColor:'#0f6e56',backgroundColor:'#0f6e5622',tension:0.3,fill:true,pointRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:leg},scales:{x:{grid:{color:gridC}},y:{grid:{color:gridC},ticks:{callback:tickCb}}}}});
+}
+function dlXL(){
+  const cl=S.clients[S.activeClient];if(!cl) return;
+  const periods=[...new Set([...cl.gstr1,...cl.gstr3b].map(r=>r.period))].sort(pSort);
+  const thresh=parseFloat(document.getElementById('threshold').value)||100;
+  const WB=XLSX.utils.book_new();
+  // Annual Summary
+  const s1=[['Period','Taxable (1)','IGST (1)','CGST (1)','SGST (1)','IGST (3B 3.1a)','CGST (3B)','SGST (3B)','Net ITC (4C)','RCM IGST (3.1d)','IGST Diff','Flag']];
+  periods.forEach(p=>{
+    const g1=cl.gstr1.find(r=>r.period===p),g3=cl.gstr3b.find(r=>r.period===p);
+    const diff=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
+    const itc3=g3?g3.data.itc:null;
+    const ni=itc3?((itc3.netIgst??itc3.net?.igst??0)+(itc3.netCgst??itc3.net?.cgst??0)+(itc3.netSgst??itc3.net?.sgst??0)):null;
+    s1.push([p,g1?g1.data.summary.taxable_value:'',g1?g1.data.summary.igst:'',g1?g1.data.summary.cgst:'',g1?g1.data.summary.sgst:'',
+      g3?g3.data.row_a.igst:'',g3?g3.data.row_a.cgst:'',g3?g3.data.row_a.sgst:'',ni!=null?ni:'',g3?g3.data.row_d.igst:'',
+      diff!=null?diff:'',diff!=null&&Math.abs(diff)>=thresh?'MISMATCH':'']);
+  });
+  const ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=s1[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws1,'Annual Summary');
+  if(cl.gstr1.length){
+    const h=[['Period','Total Value','IGST','CGST','SGST','Total Tax','B2B Value','B2B IGST','B2B CGST','B2B SGST','B2CL Value','B2CL IGST','B2CS Value','B2CS IGST','B2CS CGST','B2CS SGST','CDNR Value','CDNR IGST','CDNUR Value','CDNUR IGST','Nil/Exempt']];
+    cl.gstr1.slice().sort((a,b)=>pSort(a.period,b.period)).forEach(r=>{const d=r.data;h.push([r.period,d.summary.taxable_value,d.summary.igst,d.summary.cgst,d.summary.sgst,d.summary.total_tax,d.b2b.value,d.b2b.igst,d.b2b.cgst,d.b2b.sgst,d.b2cl.value,d.b2cl.igst,d.b2cs.value,d.b2cs.igst,d.b2cs.cgst,d.b2cs.sgst,d.cdnr.value,d.cdnr.igst,d.cdnur.value,d.cdnur.igst,d.nilExempt.total])});
+    const ws2=XLSX.utils.aoa_to_sheet(h);ws2['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws2,'GSTR-1 Detail');
+  }
+  if(cl.gstr3b.length){
+    const h=[['Period','Total (3.1a+b+c)','IGST (3.1a)','CGST (3.1a)','SGST (3.1a)','Zero Rated (3.1b)','Nil/Exempt (3.1c)','RCM Taxable (3.1d)','RCM IGST','ITC RCM 4A(3)','ITC All IGST 4A(5)','ITC All CGST','ITC All SGST','Rev 4B(1) IGST','Rev 4B(1) CGST','Rev 4B(1) SGST','Rev 4B(2) IGST','Rev 4B(2) CGST','Rev 4B(2) SGST','Net ITC IGST 4C','Net ITC CGST','Net ITC SGST','Reclaimed 4D(1)']];
+    cl.gstr3b.slice().sort((a,b)=>pSort(a.period,b.period)).forEach(r=>{const d=r.data;
+      h.push([r.period,d.row_a.taxable+d.row_b.taxable+d.row_c.taxable,d.row_a.igst,d.row_a.cgst,d.row_a.sgst,d.row_b.taxable,d.row_c.taxable,d.row_d.taxable,d.row_d.igst,
+        d.itc.rcm.igst,d.itc.all_other.igst,d.itc.all_other.cgst,d.itc.all_other.sgst,
+        d.itc.rev1.igst,d.itc.rev1.cgst,d.itc.rev1.sgst,d.itc.rev2.igst,d.itc.rev2.cgst,d.itc.rev2.sgst,
+        d.itc.netIgst??d.itc.net?.igst??0,d.itc.netCgst??d.itc.net?.cgst??0,d.itc.netSgst??d.itc.net?.sgst??0,
+        d.itc.reclaimed.igst+d.itc.reclaimed.cgst+d.itc.reclaimed.sgst]);
+    });
+    const ws3=XLSX.utils.aoa_to_sheet(h);ws3['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws3,'GSTR-3B Detail');
+  }
+  if(cl.gstr1.length&&cl.gstr3b.length){
+    const h=[['Period','Taxable (1)','Taxable (3B)','Taxable Diff','IGST (1)','IGST (3B)','IGST Diff','CGST (1)','CGST (3B)','CGST Diff','SGST (1)','SGST (3B)','SGST Diff','Total Tax (1)','Total Tax (3B)','Total Diff','B2CL IGST (1)','Inter-state IGST (3B)','Nil/Exempt (1)','Nil/Exempt (3B 3.1c)','Flag']];
+    periods.forEach(p=>{
+      const g1=cl.gstr1.find(r=>r.period===p),g3=cl.gstr3b.find(r=>r.period===p);if(!g1||!g3) return;
+      const d1=g1.data,d3=g3.data,t=parseFloat(document.getElementById('threshold').value)||100;
+      const ig=d3.row_a.igst-d1.summary.igst,cg=d3.row_a.cgst-d1.summary.cgst,sg=d3.row_a.sgst-d1.summary.sgst;
+      const tx1=d1.summary.total_tax,tx3=d3.row_a.igst+d3.row_a.cgst+d3.row_a.sgst;
+      h.push([p,d1.summary.taxable_value,(d3.row_a.taxable+d3.row_b.taxable+d3.row_c.taxable),(d3.row_a.taxable+d3.row_b.taxable+d3.row_c.taxable)-d1.summary.taxable_value,
+        d1.summary.igst,d3.row_a.igst,ig,d1.summary.cgst,d3.row_a.cgst,cg,d1.summary.sgst,d3.row_a.sgst,sg,
+        tx1,tx3,tx3-tx1,d1.b2cl.igst,d3.inter.igst,d1.nilExempt.total,d3.row_c.taxable,
+        (Math.abs(ig)>=t||Math.abs(cg)>=t||Math.abs(sg)>=t)?'MISMATCH':'OK']);
+    });
+    const ws4=XLSX.utils.aoa_to_sheet(h);ws4['!cols']=h[0].map(()=>({wch:13}));XLSX.utils.book_append_sheet(WB,ws4,'Comparison');
+  }
+  XLSX.writeFile(WB,`GST_Summary_${cl.gstn}.xlsx`);
+}
+
+// Auto-restore previously saved clients on page load
+(function(){
+  try{const n=loadClients();if(n>0&&!S.activeClient) S.activeClient=Object.keys(S.clients)[0]||null;}
+  catch(e){}
+})();
+renderUpload();
+</script>
+</body></html>
