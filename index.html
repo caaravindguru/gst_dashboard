@@ -1029,8 +1029,11 @@ function renderAnnual(){
   const thresh=parseFloat(document.getElementById('threshold').value)||100;
   const rows=periods.map(p=>{
     const g1=cl.gstr1.find(r=>r.period===p),g3=cl.gstr3b.find(r=>r.period===p);
-    const diff=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
-    return{p,g1,g3,diff,flagged:diff!=null&&Math.abs(diff)>=thresh};
+    const diffIg=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
+    const diffCg=(g1&&g3)?g3.data.row_a.cgst-g1.data.summary.cgst:null;
+    const diffSg=(g1&&g3)?g3.data.row_a.sgst-g1.data.summary.sgst:null;
+    const flagged=diffIg!=null&&(Math.abs(diffIg)>=thresh||Math.abs(diffCg)>=thresh||Math.abs(diffSg)>=thresh);
+    return{p,g1,g3,diffIg,diffCg,diffSg,flagged};
   });
   const t1tv=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.taxable_value,0);
   const t1ig=rows.filter(r=>r.g1).reduce((a,r)=>a+r.g1.data.summary.igst,0);
@@ -1065,11 +1068,14 @@ function renderAnnual(){
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--blue)">${niIgst!=null?fR(niIgst):'—'}</td>
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--teal)">${niCgst!=null?fR(niCgst):'—'}</td>
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--amber);border-right:2px solid var(--bdr)">${niSgst!=null?fR(niSgst):'—'}</td>
+      ${(()=>{const tv3=g3?(g3.data.row_a.taxable+g3.data.row_b.taxable+g3.data.row_c.taxable):null;const tvDiff=(g1&&g3)?tv3-g1.data.summary.taxable_value:null;return`<td class="num ${tvDiff!=null?(tvDiff>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${tvDiff!=null?(tvDiff>=0?'+':'')+fN(tvDiff):'—'}</td>`})()}
       <td class="num" style="background:rgba(122,74,8,0.04);color:var(--blue)">${g3?fR(g3.data.row_d.igst):'—'}</td>
       <td class="num" style="background:rgba(122,74,8,0.04);color:var(--teal)">${g3?fR(g3.data.row_d.cgst??0):'—'}</td>
       <td class="num" style="background:rgba(122,74,8,0.04);color:var(--amber)">${g3?fR(g3.data.row_d.sgst??0):'—'}</td>
-      <td class="num ${r.diff!=null?(r.diff>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diff!=null?(r.diff>=0?'+':'')+fN(r.diff):'—'}</td>
-      <td style="background:rgba(122,74,8,0.04)">${r.flagged?'<span class="badge br">⚠</span>':(r.diff!=null?'<span class="badge bg">✓</span>':'—')}</td>
+      <td class="num ${r.diffIg!=null?(r.diffIg>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diffIg!=null?(r.diffIg>=0?'+':'')+fN(r.diffIg):'—'}</td>
+      <td class="num ${r.diffCg!=null?(r.diffCg>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diffCg!=null?(r.diffCg>=0?'+':'')+fN(r.diffCg):'—'}</td>
+      <td class="num ${r.diffSg!=null?(r.diffSg>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diffSg!=null?(r.diffSg>=0?'+':'')+fN(r.diffSg):'—'}</td>
+      <td style="background:rgba(122,74,8,0.04)">${r.flagged?'<span class="badge br">⚠</span>':(r.diffIg!=null?'<span class="badge bg">✓</span>':'—')}</td>
     </tr>`;
   }).join('');
 
@@ -1129,7 +1135,7 @@ function renderAnnual(){
         <th colspan="4" style="text-align:center;background:rgba(15,110,86,0.12);color:var(--teal);border-bottom:2px solid var(--teal);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-1 — Outward Supply</th>
         <th colspan="4" style="text-align:center;background:rgba(83,74,183,0.12);color:var(--purple);border-bottom:2px solid var(--purple);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-3B — Output (3.1a+b+c)</th>
         <th colspan="4" style="text-align:center;background:rgba(59,109,17,0.12);color:var(--green);border-bottom:2px solid var(--green);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">Net ITC (Table 4C — computed)</th>
-        <th colspan="5" style="text-align:center;background:rgba(122,74,8,0.1);color:var(--amber);border-bottom:2px solid var(--amber);padding:8px 6px;font-size:11px;letter-spacing:.3px">Variance</th>
+        <th colspan="8" style="text-align:center;background:rgba(122,74,8,0.1);color:var(--amber);border-bottom:2px solid var(--amber);padding:8px 6px;font-size:11px;letter-spacing:.3px">Variance (3B − GSTR-1)</th>
       </tr>
       <tr>
         <th class="num" style="background:rgba(15,110,86,0.06)">Total Value</th>
@@ -1144,10 +1150,13 @@ function renderAnnual(){
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--blue)">IGST</th>
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--teal)">CGST</th>
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--amber);border-right:2px solid var(--bdr)">SGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--amber)">Taxable Diff</th>
         <th class="num" style="background:rgba(122,74,8,0.06);color:var(--blue)">RCM IGST</th>
         <th class="num" style="background:rgba(122,74,8,0.06);color:var(--teal)">RCM CGST</th>
         <th class="num" style="background:rgba(122,74,8,0.06);color:var(--amber)">RCM SGST</th>
-        <th class="num" style="background:rgba(122,74,8,0.06)">IGST Diff</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--blue)">IGST Diff</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--teal)">CGST Diff</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--amber)">SGST Diff</th>
         <th style="background:rgba(122,74,8,0.06)">Flag</th>
       </tr>
     </thead>
@@ -1157,7 +1166,7 @@ function renderAnnual(){
         <td class="num">${fR(t1tv)}</td><td class="num">${fR(t1ig)}</td><td class="num">${fR(t1cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t1sg)}</td>
         <td class="num">${fR(t3tv)}</td><td class="num">${fR(t3ig)}</td><td class="num">${fR(t3cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t3sg)}</td>
         <td class="num">${fR(titc)}</td><td class="num">${fR(tniIgst)}</td><td class="num">${fR(tniCgst)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(tniSgst)}</td>
-        <td></td><td></td><td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
       </tr>
     </tbody>
   </table></div></div>
@@ -1232,15 +1241,20 @@ function dlXL(){
   const thresh=parseFloat(document.getElementById('threshold').value)||100;
   const WB=XLSX.utils.book_new();
   // Annual Summary
-  const s1=[['Period','Taxable (1)','IGST (1)','CGST (1)','SGST (1)','IGST (3B 3.1a)','CGST (3B)','SGST (3B)','Net ITC (4C)','RCM IGST (3.1d)','IGST Diff','Flag']];
+  const s1=[['Period','Taxable (1)','IGST (1)','CGST (1)','SGST (1)','IGST (3B 3.1a)','CGST (3B)','SGST (3B)','Net ITC (4C)','RCM IGST (3.1d)','RCM CGST','RCM SGST','IGST Diff','CGST Diff','SGST Diff','Flag']];
   periods.forEach(p=>{
     const g1=cl.gstr1.find(r=>r.period===p),g3=cl.gstr3b.find(r=>r.period===p);
-    const diff=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
+    const diffIg=(g1&&g3)?g3.data.row_a.igst-g1.data.summary.igst:null;
+    const diffCg=(g1&&g3)?g3.data.row_a.cgst-g1.data.summary.cgst:null;
+    const diffSg=(g1&&g3)?g3.data.row_a.sgst-g1.data.summary.sgst:null;
     const itc3=g3?g3.data.itc:null;
     const ni=itc3?((itc3.netIgst??itc3.net?.igst??0)+(itc3.netCgst??itc3.net?.cgst??0)+(itc3.netSgst??itc3.net?.sgst??0)):null;
+    const flagged=diffIg!=null&&(Math.abs(diffIg)>=thresh||Math.abs(diffCg)>=thresh||Math.abs(diffSg)>=thresh);
     s1.push([p,g1?g1.data.summary.taxable_value:'',g1?g1.data.summary.igst:'',g1?g1.data.summary.cgst:'',g1?g1.data.summary.sgst:'',
-      g3?g3.data.row_a.igst:'',g3?g3.data.row_a.cgst:'',g3?g3.data.row_a.sgst:'',ni!=null?ni:'',g3?g3.data.row_d.igst:'',
-      diff!=null?diff:'',diff!=null&&Math.abs(diff)>=thresh?'MISMATCH':'']);
+      g3?g3.data.row_a.igst:'',g3?g3.data.row_a.cgst:'',g3?g3.data.row_a.sgst:'',ni!=null?ni:'',
+      g3?g3.data.row_d.igst:'',g3?(g3.data.row_d.cgst??0):'',g3?(g3.data.row_d.sgst??0):'',
+      diffIg!=null?diffIg:'',diffCg!=null?diffCg:'',diffSg!=null?diffSg:'',
+      diffIg!=null?(flagged?'MISMATCH':'OK'):'']);
   });
   const ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=s1[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws1,'Annual Summary');
   if(cl.gstr1.length){
