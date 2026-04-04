@@ -88,7 +88,7 @@ tr:last-child td{border-bottom:none}
 </head>
 <body>
 <nav>
-  <div class="brand">GST Dashboard <span>| v9 — Portal PDF Parser</span></div>
+  <div class="brand">GST Dashboard</div>
   <div class="tabs">
     <div class="tab active" id="tab-upload" onclick="go('upload')">Upload</div>
     <div class="tab" id="tab-gstr1" onclick="go('gstr1')">GSTR-1</div>
@@ -493,11 +493,47 @@ function go(t){
 // ── UPLOAD ────────────────────────────────────────────────────────────────────
 function renderUpload(){
   const mc=document.getElementById('main');
-  const list=S.files.length?`<div class="fl">${S.files.map((f,i)=>`
-    <div class="fi"><div class="fd ${f.type}"></div><div class="fn">${f.name}</div>
-    <div class="fm">${f.gstn} · ${f.period}</div>
-    <span class="badge ${f.type==='gstr1'?'bt':'bb'}">${f.type==='gstr1'?'GSTR-1':'GSTR-3B'}</span>
-    <button class="btn bsm bd" onclick="rmFile(${i})">✕</button></div>`).join('')}</div>`:'';
+  // Group files by GSTN
+  const byGstn={};
+  S.files.forEach((f,i)=>{
+    if(!byGstn[f.gstn]) byGstn[f.gstn]={gstn:f.gstn,name:f.data?.name||f.gstn,files:[]};
+    byGstn[f.gstn].files.push({...f,idx:i});
+  });
+  const gstns=Object.keys(byGstn);
+  let list='';
+  if(gstns.length){
+    list=`<div class="fl">`+gstns.map(gstn=>{
+      const grp=byGstn[gstn];
+      const n=grp.files.length;
+      const g1c=grp.files.filter(f=>f.type==='gstr1').length;
+      const g3c=grp.files.filter(f=>f.type==='gstr3b').length;
+      const periods=[...new Set(grp.files.map(f=>f.period))].sort(pSort).map(formatPeriod).join(', ');
+      const tid='tile_'+gstn.replace(/[^a-z0-9]/gi,'_');
+      const fileRows=grp.files.map(f=>`
+        <div class="fi" style="margin:0;border-radius:0;border-left:none;border-right:none;border-top:none;background:var(--bg)">
+          <div class="fd ${f.type}"></div>
+          <div class="fn">${f.name}</div>
+          <div class="fm">${formatPeriod(f.period)}</div>
+          <span class="badge ${f.type==='gstr1'?'bt':'bb'}">${f.type==='gstr1'?'GSTR-1':'GSTR-3B'}</span>
+          <button class="btn bsm bd" onclick="event.stopPropagation();rmFile(${f.idx})">✕</button>
+        </div>`).join('');
+      return`<div style="border:0.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;background:var(--card)">
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none" onclick="toggleTile('${tid}')">
+          <div style="width:9px;height:9px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
+          <div style="flex:1">
+            <span style="font-size:12px;font-weight:600">${gstn}</span>
+            <span style="font-size:10px;color:var(--muted);margin-left:6px">${grp.name.split(' ').slice(0,3).join(' ')}</span>
+          </div>
+          <span class="badge bt" title="GSTR-1 files">${g1c} GSTR-1</span>
+          <span class="badge bb" title="GSTR-3B files">${g3c} GSTR-3B</span>
+          <span class="badge bm">${n} file${n!==1?'s':''}</span>
+          <span id="${tid}_arrow" style="font-size:10px;color:var(--muted);transition:transform .2s">▼</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);padding:0 12px 7px;margin-top:-4px">${periods}</div>
+        <div id="${tid}" style="display:none;border-top:0.5px solid var(--bdr)">${fileRows}</div>
+      </div>`;
+    }).join('')+`</div>`;
+  }
   mc.innerHTML=`
     <div style="max-width:540px;margin:20px auto 0">
       <div class="nt ni">ℹ️ Upload GSTR-1 and GSTR-3B PDFs downloaded from GST portal. GSTN, period and all table values extracted automatically.</div>
@@ -508,7 +544,7 @@ function renderUpload(){
       <div style="font-size:11px;color:var(--muted);line-height:1.7">PDF (GST Portal, text-selectable) · JSON · Excel/CSV<br>Multiple clients &amp; periods supported — identified by GSTN</div>
     </div>
     <input type="file" id="fi" multiple accept=".pdf,.json,.xlsx,.xls,.csv,.txt" onchange="handleFS(event)" style="display:none">
-    ${list}
+    <div style="max-width:540px;margin:12px auto 0">${list}</div>
     ${S.files.length?`<div class="acts">
       <button class="btn btnp" onclick="go('gstr1')">GSTR-1 →</button>
       <button class="btn btnp" onclick="go('gstr3b')">GSTR-3B →</button>
@@ -518,6 +554,14 @@ function renderUpload(){
       <button class="btn" onclick="clearAll()">Clear all</button>
     </div>`:''}
     ${renderSavedList()}`;
+}
+function toggleTile(id){
+  const el=document.getElementById(id);
+  const arrow=document.getElementById(id+'_arrow');
+  if(!el) return;
+  const open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(arrow) arrow.style.transform=open?'rotate(180deg)':'';
 }
 // Save current session and show toast
 function doSave(){
@@ -823,7 +867,7 @@ function renderCmp(){
     <thead><tr><th>ITC Detail</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th><th class="num">Total</th></tr></thead>
     <tbody>
       <tr><td>All Other ITC (4A-5)</td><td class="num">${fR(d3.itc.all_other.igst)}</td><td class="num">${fR(d3.itc.all_other.cgst)}</td><td class="num">${fR(d3.itc.all_other.sgst)}</td><td class="num">${fR(d3.itc.all_other.igst+d3.itc.all_other.cgst+d3.itc.all_other.sgst)}</td></tr>
-      <tr><td>RCM ITC (4A-3)</td><td class="num">${fR(d3.itc.rcm.igst)}</td><td class="num">—</td><td class="num">—</td><td class="num">${fR(d3.itc.rcm.igst)}</td></tr>
+      <tr><td>RCM ITC (4A-3)</td><td class="num">${fR(d3.itc.rcm.igst)}</td><td class="num">${fR(d3.itc.rcm.cgst??0)}</td><td class="num">${fR(d3.itc.rcm.sgst??0)}</td><td class="num">${fR((d3.itc.rcm.igst??0)+(d3.itc.rcm.cgst??0)+(d3.itc.rcm.sgst??0))}</td></tr>
       <tr style="color:var(--red)"><td>ITC Reversed (4B-1+4B-2)</td><td class="num">(${fN(d3.itc.rev1.igst+d3.itc.rev2.igst)})</td><td class="num">(${fN(d3.itc.rev1.cgst+d3.itc.rev2.cgst)})</td><td class="num">(${fN(d3.itc.rev1.sgst+d3.itc.rev2.sgst)})</td><td class="num">(${fN(d3.itc.rev1.igst+d3.itc.rev2.igst+d3.itc.rev1.cgst+d3.itc.rev2.cgst+d3.itc.rev1.sgst+d3.itc.rev2.sgst)})</td></tr>
       <tr class="tr"><td>Net ITC (4C — computed)</td><td class="num">${fR(d3.itc.netIgst??d3.itc.net.igst)}</td><td class="num">${fR(d3.itc.netCgst??d3.itc.net.cgst)}</td><td class="num">${fR(d3.itc.netSgst??d3.itc.net.sgst)}</td><td class="num">${fR((d3.itc.netIgst??d3.itc.net.igst)+(d3.itc.netCgst??d3.itc.net.cgst)+(d3.itc.netSgst??d3.itc.net.sgst))}</td></tr>
     </tbody>
@@ -1021,7 +1065,9 @@ function renderAnnual(){
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--blue)">${niIgst!=null?fR(niIgst):'—'}</td>
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--teal)">${niCgst!=null?fR(niCgst):'—'}</td>
       <td class="num" style="background:rgba(59,109,17,0.04);color:var(--amber);border-right:2px solid var(--bdr)">${niSgst!=null?fR(niSgst):'—'}</td>
-      <td class="num" style="background:rgba(122,74,8,0.04)">${g3?fR(g3.data.row_d.igst):'—'}</td>
+      <td class="num" style="background:rgba(122,74,8,0.04);color:var(--blue)">${g3?fR(g3.data.row_d.igst):'—'}</td>
+      <td class="num" style="background:rgba(122,74,8,0.04);color:var(--teal)">${g3?fR(g3.data.row_d.cgst??0):'—'}</td>
+      <td class="num" style="background:rgba(122,74,8,0.04);color:var(--amber)">${g3?fR(g3.data.row_d.sgst??0):'—'}</td>
       <td class="num ${r.diff!=null?(r.diff>0?'dp':'dn'):''}" style="background:rgba(122,74,8,0.04)">${r.diff!=null?(r.diff>=0?'+':'')+fN(r.diff):'—'}</td>
       <td style="background:rgba(122,74,8,0.04)">${r.flagged?'<span class="badge br">⚠</span>':(r.diff!=null?'<span class="badge bg">✓</span>':'—')}</td>
     </tr>`;
@@ -1083,7 +1129,7 @@ function renderAnnual(){
         <th colspan="4" style="text-align:center;background:rgba(15,110,86,0.12);color:var(--teal);border-bottom:2px solid var(--teal);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-1 — Outward Supply</th>
         <th colspan="4" style="text-align:center;background:rgba(83,74,183,0.12);color:var(--purple);border-bottom:2px solid var(--purple);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">GSTR-3B — Output (3.1a+b+c)</th>
         <th colspan="4" style="text-align:center;background:rgba(59,109,17,0.12);color:var(--green);border-bottom:2px solid var(--green);border-right:2px solid var(--bdr);padding:8px 6px;font-size:11px;letter-spacing:.3px">Net ITC (Table 4C — computed)</th>
-        <th colspan="3" style="text-align:center;background:rgba(122,74,8,0.1);color:var(--amber);border-bottom:2px solid var(--amber);padding:8px 6px;font-size:11px;letter-spacing:.3px">Variance</th>
+        <th colspan="5" style="text-align:center;background:rgba(122,74,8,0.1);color:var(--amber);border-bottom:2px solid var(--amber);padding:8px 6px;font-size:11px;letter-spacing:.3px">Variance</th>
       </tr>
       <tr>
         <th class="num" style="background:rgba(15,110,86,0.06)">Total Value</th>
@@ -1098,7 +1144,9 @@ function renderAnnual(){
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--blue)">IGST</th>
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--teal)">CGST</th>
         <th class="num" style="background:rgba(59,109,17,0.06);color:var(--amber);border-right:2px solid var(--bdr)">SGST</th>
-        <th class="num" style="background:rgba(122,74,8,0.06)">RCM IGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--blue)">RCM IGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--teal)">RCM CGST</th>
+        <th class="num" style="background:rgba(122,74,8,0.06);color:var(--amber)">RCM SGST</th>
         <th class="num" style="background:rgba(122,74,8,0.06)">IGST Diff</th>
         <th style="background:rgba(122,74,8,0.06)">Flag</th>
       </tr>
@@ -1109,7 +1157,7 @@ function renderAnnual(){
         <td class="num">${fR(t1tv)}</td><td class="num">${fR(t1ig)}</td><td class="num">${fR(t1cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t1sg)}</td>
         <td class="num">${fR(t3tv)}</td><td class="num">${fR(t3ig)}</td><td class="num">${fR(t3cg)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(t3sg)}</td>
         <td class="num">${fR(titc)}</td><td class="num">${fR(tniIgst)}</td><td class="num">${fR(tniCgst)}</td><td class="num" style="border-right:2px solid var(--bdr)">${fR(tniSgst)}</td>
-        <td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td></td>
       </tr>
     </tbody>
   </table></div></div>
