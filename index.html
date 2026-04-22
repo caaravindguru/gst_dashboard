@@ -229,8 +229,9 @@ async function extractPDFText(file){
 function parse3B(text){
   const rx=(p,f=1)=>{const m=text.match(new RegExp(p,'i'));return m?+(m[f].replace(/,/g,'')):0};
   const rx4=(p)=>{
-    const m=text.match(new RegExp(p+'\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)','i'));
-    return m?{igst:+(m[1].replace(/,/g,'')),cgst:+(m[2].replace(/,/g,'')),sgst:+(m[3].replace(/,/g,'')),cess:+(m[4].replace(/,/g,''))}:{igst:0,cgst:0,sgst:0,cess:0};
+    const m=text.match(new RegExp(p+'\\s+(-?[\\d,]+\\.\\d+)\\s+(-?[\\d,]+\\.\\d+)\\s+(-?[\\d,]+\\.\\d+)\\s+(-?[\\d,]+\\.\\d+)','i'));
+    const pn=s=>+(s.replace(/,/g,''));
+    return m?{igst:pn(m[1]),cgst:pn(m[2]),sgst:pn(m[3]),cess:pn(m[4])}:{igst:0,cgst:0,sgst:0,cess:0};
   };
 
   const gstnM=text.match(/GSTIN of the supplier\s+(\d{2}[A-Z]{5}\d{4}[A-Z]\d[Z][A-Z0-9])/);
@@ -249,9 +250,10 @@ function parse3B(text){
   const period=mon+'-'+yr;
 
   // ─ Table 3.1 ─
-  // Row (a): numbers come BEFORE "exempted)" — verified from word positions
-  const ra_m=text.match(/\(a\) Outward taxable supplies \(other than zero rated, nil rated and\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
-  const ra=ra_m?{taxable:+(ra_m[1].replace(/,/g,'')),igst:+(ra_m[2].replace(/,/g,'')),cgst:+(ra_m[3].replace(/,/g,'')),sgst:+(ra_m[4].replace(/,/g,'')),cess:+(ra_m[5].replace(/,/g,''))}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
+  // Row (a): numbers come BEFORE "exempted)" — verified from word positions; -? for credit-note months
+  const ra_m=text.match(/\(a\) Outward taxable supplies \(other than zero rated, nil rated and\s+([\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  const pn3b=s=>+(s.replace(/,/g,''));
+  const ra=ra_m?{taxable:pn3b(ra_m[1]),igst:pn3b(ra_m[2]),cgst:pn3b(ra_m[3]),sgst:pn3b(ra_m[4]),cess:pn3b(ra_m[5])}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
 
   // Row (b)
   const rb_m=text.match(/\(b\) Outward taxable supplies \(zero rated\)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
@@ -261,9 +263,9 @@ function parse3B(text){
   const rc_m=text.match(/\(c\s*\)\s*Other outward supplies \(nil rated, exempted\)\s+([\d,]+\.\d+)/i);
   const rc={taxable:rc_m?+(rc_m[1].replace(/,/g,'')):0};
 
-  // Row (d) — L artifact before taxable
-  const rd_m=text.match(/\(d\) Inward supplies \(liable to reverse charge\)\s+L?([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
-  const rd=rd_m?{taxable:+(rd_m[1].replace(/,/g,'')),igst:+(rd_m[2].replace(/,/g,'')),cgst:+(rd_m[3].replace(/,/g,'')),sgst:+(rd_m[4].replace(/,/g,'')),cess:+(rd_m[5].replace(/,/g,''))}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
+  // Row (d) — L artifact before taxable; -? on all tax cols for safety
+  const rd_m=text.match(/\(d\) Inward supplies \(liable to reverse charge\)\s+L?([\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  const rd=rd_m?{taxable:pn3b(rd_m[1]),igst:pn3b(rd_m[2]),cgst:pn3b(rd_m[3]),sgst:pn3b(rd_m[4]),cess:pn3b(rd_m[5])}:{taxable:0,igst:0,cgst:0,sgst:0,cess:0};
 
   // Row (e) — Non-GST outward supplies (only taxable value, no tax columns)
   const re_m=text.match(/\(e\)\s*Non[\s\-]*GST\s+outward\s+supplies\s+([\d,]+\.\d+)/i);
@@ -389,15 +391,17 @@ function parse1(text){
   const period=mon+'-'+yr;
 
   // B2B 4A — "Total 17 Invoice 1,12,11,124.00 18,89,129.00 64,438.00 64,438.00 0.00"
-  const b2b_m=text.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  // igst is 0.00 for pure intra-state returns; -? added to all tax cols for credit note safety
+  const b2b_m=text.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
   const b2b=b2b_m?{invoices:+b2b_m[1],value:+(b2b_m[2].replace(/,/g,'')),igst:+(b2b_m[3].replace(/,/g,'')),cgst:+(b2b_m[4].replace(/,/g,'')),sgst:+(b2b_m[5].replace(/,/g,''))}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
 
   // B2CL 5 — "Total 17 Invoice 57,65,736.00 10,37,833.00 0.00"
-  const b2cl_m=text.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+0\.00\s*(?:\n|6A)/i)
-              ||text.match(/inter[\s\S]{0,400}?Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
-  // More specific: look after B2B for next "Total N Invoice"
-  const allInvMatches=[...text.matchAll(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/gi)];
-  const b2cl=allInvMatches[1]?{invoices:+allInvMatches[1][1],value:+(allInvMatches[1][2].replace(/,/g,'')),igst:+(allInvMatches[1][3].replace(/,/g,'')),cgst:0,sgst:0}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
+  // Anchor to the text between Table 5 header and Table 6A to avoid picking up 9A amendment rows
+  const t5Start=text.search(/5\s*-\s*Taxable outward inter.state/i);
+  const t6Start=text.search(/6A\s*[–-]\s*Exports/i);
+  const t5Section=(t5Start>-1&&t6Start>t5Start)?text.slice(t5Start,t6Start):'';
+  const b2cl_m=t5Section.match(/Total\s+(\d+)\s+Invoice\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
+  const b2cl=b2cl_m?{invoices:+b2cl_m[1],value:+(b2cl_m[2].replace(/,/g,'')),igst:+(b2cl_m[3].replace(/,/g,'')),cgst:0,sgst:0}:{invoices:0,value:0,igst:0,cgst:0,sgst:0};
 
   // B2CS 7 — "Total 6 Net Value 11,24,120.00 79,874.00 61,232.67 61,232.67 0.00"
   const b2cs_m=text.match(/Total\s+(\d+)\s+Net Value\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
@@ -409,8 +413,10 @@ function parse1(text){
   const nilExempt={total:nilM?+(nilM[1].replace(/,/g,'')):0,exempt:exM?+(exM[1].replace(/,/g,'')):0};
 
   // CDNR — "Total - Net off debit/credit notes 3 Note -6,22,628.00 -48,926.00 -31,574.00 -31,574.00"
+  // pn() helper strips commas and preserves sign for negative values like -1,35,000.00
+  const pn=s=>+(s.replace(/,/g,''));
   const cdnr_m=text.match(/Net off debit\/credit notes.*?(\d+)\s+Note\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
-  const cdnr=cdnr_m?{notes:+cdnr_m[1],value:+(cdnr_m[2].replace(/,/g,'')),igst:+(cdnr_m[3].replace(/,/g,'')),cgst:+(cdnr_m[4].replace(/,/g,'')),sgst:+(cdnr_m[5].replace(/,/g,''))}:{notes:0,value:0,igst:0,cgst:0,sgst:0};
+  const cdnr=cdnr_m?{notes:+cdnr_m[1],value:pn(cdnr_m[2]),igst:pn(cdnr_m[3]),cgst:pn(cdnr_m[4]),sgst:pn(cdnr_m[5])}:{notes:0,value:0,igst:0,cgst:0,sgst:0};
 
   // CDNUR — "Total - Net off... 10 Note -24,48,421.00 -4,40,716.00 0.00"
   const cdnurSection=text.slice(text.indexOf('CDNUR'));
@@ -421,9 +427,9 @@ function parse1(text){
   const hsn_m=text.match(/12[\s\S]{0,200}?Total\s+\d+\s+NA\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
   const hsn=hsn_m?{value:+(hsn_m[1].replace(/,/g,'')),igst:+(hsn_m[2].replace(/,/g,'')),cgst:+(hsn_m[3].replace(/,/g,'')),sgst:+(hsn_m[4].replace(/,/g,''))}:null;
 
-  // Total Liability — authoritative
-  const totM=text.match(/Total Liability[^0-9]*([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)\s+([\d,]+\.\d+)/i);
-  const tl=totM?{value:+(totM[1].replace(/,/g,'')),igst:+(totM[2].replace(/,/g,'')),cgst:+(totM[3].replace(/,/g,'')),sgst:+(totM[4].replace(/,/g,''))}:null;
+  // Total Liability — authoritative; -? prefix allows negative CGST/SGST in credit-note-heavy months
+  const totM=text.match(/Total Liability[^0-9-]*([\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  const tl=totM?{value:pn(totM[1]),igst:pn(totM[2]),cgst:pn(totM[3]),sgst:pn(totM[4])}:null;
 
   const igst=tl?tl.igst:(b2b.igst+b2cl.igst+b2cs.igst);
   const cgst=tl?tl.cgst:(b2b.cgst+b2cs.cgst);
@@ -1257,7 +1263,7 @@ function dlXL(){
     const ws2=XLSX.utils.aoa_to_sheet(h);ws2['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws2,'GSTR-1 Detail');
   }
   if(cl.gstr3b.length){
-    const h=[['Period','Total (3.1a+b+c)','IGST (3.1a)','CGST (3.1a)','SGST (3.1a)','Zero Rated (3.1b)','Nil/Exempt (3.1c)','RCM Taxable (3.1d)','RCM IGST','RCM CGST (3.1d)','RCM SGST (3.1d)','ITC RCM IGST 4A(3)','ITC RCM CGST 4A(3)','ITC RCM SGST 4A(3)','ITC All IGST 4A(5)','ITC All CGST','ITC All SGST','Rev 4B(1) IGST','Rev 4B(1) CGST','Rev 4B(1) SGST','Rev 4B(2) IGST','Rev 4B(2) CGST','Rev 4B(2) SGST','Net ITC IGST 4C','Net ITC CGST','Net ITC SGST','Reclaimed IGST 4D(1)','Reclaimed CGST 4D(1)','Reclaimed SGST 4D(1)','Ineligible IGST 4D(2)','Ineligible CGST 4D(2)','Ineligible SGST 4D(2)']];
+    const h=[['Period','Total (3.1a+b+c)','IGST (3.1a)','CGST (3.1a)','SGST (3.1a)','Zero Rated (3.1b)','Nil/Exempt (3.1c)','RCM Taxable (3.1d)','RCM IGST','RCM CGST (3.1d)','RCM SGST (3.1d)','ITC RCM IGST 4A(3)','ITC RCM CGST 4A(3)','ITC RCM SGST 4A(3)','ITC All IGST 4A(5)','ITC All CGST','ITC All SGST','Rev 4B(1) IGST','Rev 4B(1) CGST','Rev 4B(1) SGST','Rev 4B(2) IGST','Rev 4B(2) CGST','Rev 4B(2) SGST','Net ITC IGST 4C','Net ITC CGST','Net ITC SGST','Reclaimed 4D(1)']];
     cl.gstr3b.slice().sort((a,b)=>pSort(a.period,b.period)).forEach(r=>{const d=r.data;
       h.push([r.period,d.row_a.taxable+d.row_b.taxable+d.row_c.taxable+(d.row_e?d.row_e.taxable:0),d.row_a.igst,d.row_a.cgst,d.row_a.sgst,d.row_b.taxable,d.row_c.taxable,d.row_d.taxable,d.row_d.igst,
         d.row_d.cgst,d.row_d.sgst,
@@ -1265,8 +1271,7 @@ function dlXL(){
         d.itc.all_other.igst,d.itc.all_other.cgst,d.itc.all_other.sgst,
         d.itc.rev1.igst,d.itc.rev1.cgst,d.itc.rev1.sgst,d.itc.rev2.igst,d.itc.rev2.cgst,d.itc.rev2.sgst,
         d.itc.netIgst??d.itc.net?.igst??0,d.itc.netCgst??d.itc.net?.cgst??0,d.itc.netSgst??d.itc.net?.sgst??0,
-        d.itc.reclaimed.igst,d.itc.reclaimed.cgst,d.itc.reclaimed.sgst,
-        (d.itc.ineligible?.igst??0),(d.itc.ineligible?.cgst??0),(d.itc.ineligible?.sgst??0)]);
+        d.itc.reclaimed.igst+d.itc.reclaimed.cgst+d.itc.reclaimed.sgst]);
     });
     const ws3=XLSX.utils.aoa_to_sheet(h);ws3['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws3,'GSTR-3B Detail');
   }
