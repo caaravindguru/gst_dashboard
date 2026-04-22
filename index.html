@@ -1257,7 +1257,7 @@ function dlXL(){
     const ws2=XLSX.utils.aoa_to_sheet(h);ws2['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws2,'GSTR-1 Detail');
   }
   if(cl.gstr3b.length){
-    const h=[['Period','Total (3.1a+b+c)','IGST (3.1a)','CGST (3.1a)','SGST (3.1a)','Zero Rated (3.1b)','Nil/Exempt (3.1c)','RCM Taxable (3.1d)','RCM IGST','RCM CGST (3.1d)','RCM SGST (3.1d)','ITC RCM IGST 4A(3)','ITC RCM CGST 4A(3)','ITC RCM SGST 4A(3)','ITC All IGST 4A(5)','ITC All CGST','ITC All SGST','Rev 4B(1) IGST','Rev 4B(1) CGST','Rev 4B(1) SGST','Rev 4B(2) IGST','Rev 4B(2) CGST','Rev 4B(2) SGST','Net ITC IGST 4C','Net ITC CGST','Net ITC SGST','Reclaimed 4D(1)']];
+    const h=[['Period','Total (3.1a+b+c)','IGST (3.1a)','CGST (3.1a)','SGST (3.1a)','Zero Rated (3.1b)','Nil/Exempt (3.1c)','RCM Taxable (3.1d)','RCM IGST','RCM CGST (3.1d)','RCM SGST (3.1d)','ITC RCM IGST 4A(3)','ITC RCM CGST 4A(3)','ITC RCM SGST 4A(3)','ITC All IGST 4A(5)','ITC All CGST','ITC All SGST','Rev 4B(1) IGST','Rev 4B(1) CGST','Rev 4B(1) SGST','Rev 4B(2) IGST','Rev 4B(2) CGST','Rev 4B(2) SGST','Net ITC IGST 4C','Net ITC CGST','Net ITC SGST','Reclaimed IGST 4D(1)','Reclaimed CGST 4D(1)','Reclaimed SGST 4D(1)','Ineligible IGST 4D(2)','Ineligible CGST 4D(2)','Ineligible SGST 4D(2)']];
     cl.gstr3b.slice().sort((a,b)=>pSort(a.period,b.period)).forEach(r=>{const d=r.data;
       h.push([r.period,d.row_a.taxable+d.row_b.taxable+d.row_c.taxable+(d.row_e?d.row_e.taxable:0),d.row_a.igst,d.row_a.cgst,d.row_a.sgst,d.row_b.taxable,d.row_c.taxable,d.row_d.taxable,d.row_d.igst,
         d.row_d.cgst,d.row_d.sgst,
@@ -1265,7 +1265,8 @@ function dlXL(){
         d.itc.all_other.igst,d.itc.all_other.cgst,d.itc.all_other.sgst,
         d.itc.rev1.igst,d.itc.rev1.cgst,d.itc.rev1.sgst,d.itc.rev2.igst,d.itc.rev2.cgst,d.itc.rev2.sgst,
         d.itc.netIgst??d.itc.net?.igst??0,d.itc.netCgst??d.itc.net?.cgst??0,d.itc.netSgst??d.itc.net?.sgst??0,
-        d.itc.reclaimed.igst+d.itc.reclaimed.cgst+d.itc.reclaimed.sgst]);
+        d.itc.reclaimed.igst,d.itc.reclaimed.cgst,d.itc.reclaimed.sgst,
+        (d.itc.ineligible?.igst??0),(d.itc.ineligible?.cgst??0),(d.itc.ineligible?.sgst??0)]);
     });
     const ws3=XLSX.utils.aoa_to_sheet(h);ws3['!cols']=h[0].map(()=>({wch:14}));XLSX.utils.book_append_sheet(WB,ws3,'GSTR-3B Detail');
   }
