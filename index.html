@@ -421,7 +421,11 @@ function parse1(text){
   // CDNR — "Total - Net off debit/credit notes 3 Note -6,22,628.00 -48,926.00 -31,574.00 -31,574.00"
   // pn() helper strips commas and preserves sign for negative values like -1,35,000.00
   const pn=s=>+(s.replace(/,/g,''));
-  const cdnr_m=text.match(/Net off debit\/credit notes.*?(\d+)\s+Note\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
+  // FIX (Aug 2026): pdf.js text-extraction inserts a stray space after the "/" in
+  // "debit/credit" for some GSTR-1 PDFs (renders as "debit/ credit"), which silently
+  // failed the old \/  literal match and zeroed out the whole CDNR row. \s* around
+  // the slash makes the match tolerant of both renderings.
+  const cdnr_m=text.match(/Net off debit\s*\/\s*credit notes.*?(\d+)\s+Note\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)\s+(-?[\d,]+\.\d+)/i);
   const cdnr=cdnr_m?{notes:+cdnr_m[1],value:pn(cdnr_m[2]),igst:pn(cdnr_m[3]),cgst:pn(cdnr_m[4]),sgst:pn(cdnr_m[5])}:{notes:0,value:0,igst:0,cgst:0,sgst:0};
 
   // CDNUR — "Total - Net off... 10 Note -24,48,421.00 -4,40,716.00 0.00"
